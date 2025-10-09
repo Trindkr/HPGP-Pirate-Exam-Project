@@ -1,5 +1,6 @@
 using Components;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Systems
@@ -13,18 +14,28 @@ namespace Systems
                 DeltaTime = SystemAPI.Time.DeltaTime
             };
 
-            sailingJob.ScheduleParallel();
+            var jobHandle = sailingJob.ScheduleParallel(state.Dependency);
+            state.Dependency = jobHandle;
         }
     }
-
+    
     public partial struct SailingJob : IJobEntity
     {
         public float DeltaTime;
-        private const float Speed = 1f;
 
-        public void Execute(ref LocalTransform transform, in Ship ship)
+        private void Execute(ref LocalTransform transform, ref Ship ship)
         {
-            transform.Position += DeltaTime * Speed * transform.Forward();
+            ship.TurnTimer -= DeltaTime;
+            if (ship.TurnTimer <= 0f)
+            {
+                ship.AngularVelocity = ship.Random.NextFloat(-ship.MaxTurningSpeed, ship.MaxTurningSpeed);
+                ship.TurnTimer = ship.Random.NextFloat(1.0f, 3.0f);
+            }
+            
+            ship.Angle += ship.AngularVelocity * DeltaTime;
+            transform.Rotation = quaternion.RotateY(ship.Angle);
+            var velocity = ship.Speed * transform.Forward();
+            transform.Position += DeltaTime * velocity;
         }
     }
 }

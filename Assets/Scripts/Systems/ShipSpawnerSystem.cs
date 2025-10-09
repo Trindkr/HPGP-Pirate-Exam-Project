@@ -1,6 +1,5 @@
 using Components;
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -12,12 +11,12 @@ namespace Systems
     {
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
+            state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
         }
 
         public void OnStartRunning(ref SystemState state)
         {
-            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             SpawnBoats(ref state, ref ecb);
         }
@@ -30,13 +29,19 @@ namespace Systems
         {
             foreach (var spawner in SystemAPI.Query<RefRO<ShipSpawner>>())
             {
-                for (int i = 0; i < spawner.ValueRO.NumberOfShips; i++)
+                for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
                 {
                     var ship = ecb.Instantiate(spawner.ValueRO.ShipPrefab);
-                    ecb.AddComponent(ship, new Ship());
-
                     var localTransform = LocalTransform.FromPosition(new float3(i * 5, 0, 0));
                     ecb.SetComponent(ship, localTransform);
+                    
+                    ecb.AddComponent(ship, new Ship
+                    {
+                        Random = Random.CreateFromIndex(i),
+                        Speed = 1.0f,
+                        MaxTurningSpeed = 0.2f,
+                        AngularVelocity = 0f
+                    });
                 }
             }
         }
