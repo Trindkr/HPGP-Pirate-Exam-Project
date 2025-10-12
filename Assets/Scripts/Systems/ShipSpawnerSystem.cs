@@ -54,6 +54,8 @@ namespace Systems
                         MaxAcceleration = spawner.ValueRO.MaxLinearAcceleration,
                         MaxSpeed = spawner.ValueRO.MaxLinearSpeed,
                     });
+                    
+                    ecb.AddComponent(ship, new Navigation());
                 }
             }
         }
