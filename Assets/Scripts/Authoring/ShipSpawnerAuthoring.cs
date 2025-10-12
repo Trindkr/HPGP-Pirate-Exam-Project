@@ -18,7 +18,11 @@ namespace Authoring
                 AddComponent(entity, new ShipSpawner
                 {
                     ShipPrefab = GetEntity(authoring._prefab, TransformUsageFlags.Dynamic),
-                    NumberOfShips = authoring._simulationConfig.NumberOfShips
+                    NumberOfShips = authoring._simulationConfig.NumberOfShips,
+                    MaxAngularAcceleration = authoring._simulationConfig.MaxAngularAcceleration,
+                    MaxAngularSpeed = authoring._simulationConfig.MaxAngularSpeed,
+                    MaxLinearAcceleration = authoring._simulationConfig.MaxLinearAcceleration,
+                    MaxLinearSpeed = authoring._simulationConfig.MaxLinearSpeed
                 });
             }
         }

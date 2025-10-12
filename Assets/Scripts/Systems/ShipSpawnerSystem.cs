@@ -42,6 +42,18 @@ namespace Systems
                         MaxTurningSpeed = 0.2f,
                         AngularVelocity = 0f
                     });
+                    
+                    ecb.AddComponent(ship, new AngularMotion
+                    {
+                        MaxAcceleration = spawner.ValueRO.MaxAngularAcceleration,
+                        MaxSpeed = spawner.ValueRO.MaxAngularSpeed,
+                    });
+                    
+                    ecb.AddComponent(ship, new LinearMotion
+                    {
+                        MaxAcceleration = spawner.ValueRO.MaxLinearAcceleration,
+                        MaxSpeed = spawner.ValueRO.MaxLinearSpeed,
+                    });
                 }
             }
         }
