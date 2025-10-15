@@ -13,3 +13,7 @@ MonoBehaviour:
   m_Name: Simulation Config
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
   NumberOfShips: 10
+  MaxAngularAcceleration: 0.001
+  MaxAngularSpeed: 0.01
+  MaxLinearAcceleration: 5
+  MaxLinearSpeed: 5

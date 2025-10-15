@@ -35,13 +35,13 @@ namespace Systems
                     var localTransform = LocalTransform.FromPosition(new float3(i * 5, 0, 0));
                     ecb.SetComponent(ship, localTransform);
                     
-                    ecb.AddComponent(ship, new Ship
-                    {
-                        Random = Random.CreateFromIndex(i),
-                        Speed = 1.0f,
-                        MaxTurningSpeed = 0.2f,
-                        AngularVelocity = 0f
-                    });
+                    // ecb.AddComponent(ship, new Ship
+                    // {
+                    //     Random = Random.CreateFromIndex(i),
+                    //     Speed = 1.0f,
+                    //     MaxTurningSpeed = 0.2f,
+                    //     AngularVelocity = 0f
+                    // });
                     
                     ecb.AddComponent(ship, new AngularMotion
                     {

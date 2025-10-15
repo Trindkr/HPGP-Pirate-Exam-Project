@@ -6,6 +6,6 @@ namespace Components
     public struct Navigation : IComponentData
     {
         public float3 DesiredDirection;
-        public float DesiredSpeed;
+        public float DesiredMoveSpeed;
     }
 }
