@@ -28,8 +28,8 @@ namespace Systems
 
         public void Execute(ref LocalTransform transform, ref AngularMotion motion, in Navigation navigation)
         {
-            float desiredAcceleration = AngleBetweenDegrees(transform.Forward(), navigation.DesiredDirection);
-            float clampedAcceleration = math.max(math.min(desiredAcceleration, motion.MaxSpeed), -motion.MaxSpeed);
+            float angleDifference = AngleBetweenDegrees(transform.Forward(), navigation.DesiredDirection);
+            float clampedAcceleration = math.max(math.min(angleDifference, motion.MaxSpeed), -motion.MaxSpeed);
             motion.Speed += clampedAcceleration;
             motion.Speed = math.min(motion.Speed, motion.MaxSpeed);
             transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(motion.Speed));
@@ -43,13 +43,13 @@ namespace Systems
                 return 0f;
             }
 
-            float radians = AngleBetween(a, b);
+            float radians = AngleBetweenRadians(a, b);
             float degrees = math.degrees(radians);
             return degrees;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float AngleBetween(float3 a, float3 b)
+        private static float AngleBetweenRadians(float3 a, float3 b)
         {
             float3 na = math.normalize(a);
             float3 nb = math.normalize(b);
