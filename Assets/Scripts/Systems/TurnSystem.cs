@@ -28,8 +28,7 @@ namespace Systems
 
         public void Execute(ref LocalTransform transform, ref AngularMotion motion, in Navigation navigation)
         {
-            Debug.Log($"Transform Rotation: {math.Euler(transform.Rotation)}, Desired Direction: {navigation.DesiredDirection}");
-            float desiredAcceleration = AngleBetweenDegrees(math.Euler(transform.Rotation), navigation.DesiredDirection);
+            float desiredAcceleration = AngleBetweenDegrees(transform.Forward(), navigation.DesiredDirection);
             float clampedAcceleration = math.max(math.min(desiredAcceleration, motion.MaxSpeed), -motion.MaxSpeed);
             motion.Speed += clampedAcceleration;
             motion.Speed = math.min(motion.Speed, motion.MaxSpeed);
@@ -39,10 +38,14 @@ namespace Systems
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float AngleBetweenDegrees(float3 a, float3 b)
         {
-            if (math.lengthsq(b) == 0f) return 0f;
-            
+            if (math.lengthsq(b) == 0f)
+            {
+                return 0f;
+            }
+
             float radians = AngleBetween(a, b);
-            return math.degrees(radians);
+            float degrees = math.degrees(radians);
+            return degrees;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,7 +54,12 @@ namespace Systems
             float3 na = math.normalize(a);
             float3 nb = math.normalize(b);
             float dot = math.clamp(math.dot(na, nb), -1f, 1f);
-            return math.acos(dot);
+            float angle = math.acos(dot); // unsigned angle
+
+            float3 cross = math.cross(na, nb);
+            float sign = math.sign(math.dot(cross, new float3(0f, 1f, 0f))); // positive or negative
+
+            return angle * sign;
         }
     }
 }
