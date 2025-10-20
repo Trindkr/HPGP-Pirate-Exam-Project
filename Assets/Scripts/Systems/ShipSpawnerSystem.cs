@@ -34,7 +34,7 @@ namespace Systems
                     for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
                     {
                         var ship = ecb.Instantiate(spawner.ValueRO.ShipPrefab);
-                        var localTransform = LocalTransform.FromPosition(new float3(i * 5, 0, j * 5));
+                        var localTransform = LocalTransform.FromPosition(new float3(i * 10, 0, j * 10));
                         ecb.SetComponent(ship, localTransform);
 
                         // ecb.AddComponent(ship, new Ship

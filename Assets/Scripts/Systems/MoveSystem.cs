@@ -24,11 +24,12 @@ namespace Systems
     public partial struct MoveJob : IJobEntity
     {
         public float DeltaTime;
-        
+
         public void Execute(ref LocalTransform transform, ref LinearMotion motion, in Navigation navigation)
         {
             float desiredAcceleration = navigation.DesiredMoveSpeed - motion.Speed;
-            float clampedAcceleration = math.max(math.min(desiredAcceleration, motion.MaxSpeed), -motion.MaxSpeed);
+            float clampedAcceleration =
+                math.clamp(desiredAcceleration, -motion.MaxAcceleration, motion.MaxAcceleration);
             motion.Speed += clampedAcceleration;
             motion.Speed = math.min(motion.Speed, motion.MaxSpeed);
             transform.MoveForward(motion.Speed * DeltaTime);
