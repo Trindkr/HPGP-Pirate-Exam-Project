@@ -59,6 +59,7 @@ namespace Systems
                 cohesion += offset;
                 alignment += other.Forward().xz;
 
+                // gør det samme med cohesion og alignment, så skiber som er tæt på vægter højere
                 separation -= offset * (1.0f / squareDistance - 1.0f / MaxDistance);
             }
 
