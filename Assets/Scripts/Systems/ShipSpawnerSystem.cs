@@ -29,19 +29,29 @@ namespace Systems
         {
             foreach (var spawner in SystemAPI.Query<RefRO<ShipSpawner>>())
             {
-                for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
+                for (int j = 0; j < spawner.ValueRO.NumberOfShips; j++)
                 {
-                    var ship = ecb.Instantiate(spawner.ValueRO.ShipPrefab);
-                    var localTransform = LocalTransform.FromPosition(new float3(i * 5, 0, 0));
-                    ecb.SetComponent(ship, localTransform);
-                    
-                    ecb.AddComponent(ship, new Ship
+                    for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
                     {
-                        Random = Random.CreateFromIndex(i),
-                        Speed = 1.0f,
-                        MaxTurningSpeed = 0.2f,
-                        AngularVelocity = 0f
-                    });
+                        var ship = ecb.Instantiate(spawner.ValueRO.ShipPrefab);
+                        var localTransform =
+                            LocalTransform.FromPosition(new float3(i * 10 + i * j / 3f, 0, j * 10 + i * j / 2f));
+                        ecb.SetComponent(ship, localTransform);
+
+                        ecb.AddComponent(ship, new AngularMotion
+                        {
+                            MaxAcceleration = spawner.ValueRO.MaxAngularAcceleration,
+                            MaxSpeed = spawner.ValueRO.MaxAngularSpeed,
+                        });
+
+                        ecb.AddComponent(ship, new LinearMotion
+                        {
+                            MaxAcceleration = spawner.ValueRO.MaxLinearAcceleration,
+                            MaxSpeed = spawner.ValueRO.MaxLinearSpeed,
+                        });
+
+                        ecb.AddComponent<Navigation>(ship);
+                    }
                 }
             }
         }

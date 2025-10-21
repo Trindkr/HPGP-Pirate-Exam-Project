@@ -1,0 +1,36 @@
+using System.Runtime.CompilerServices;
+using Components;
+using Unity.Burst;
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+
+namespace Systems
+{
+    [BurstCompile]
+    public partial struct MoveSystem : ISystem
+    {
+        public void OnUpdate(ref SystemState state)
+        {
+            var moveJob = new MoveJob
+            {
+                DeltaTime = SystemAPI.Time.DeltaTime
+            };
+            state.Dependency = moveJob.ScheduleParallel(state.Dependency);
+        }
+    }
+
+    [BurstCompile]
+    public partial struct MoveJob : IJobEntity
+    {
+        public float DeltaTime;
+
+        public void Execute(ref LocalTransform transform, ref LinearMotion motion, in Navigation navigation)
+        {
+            float desiredAcceleration = math.clamp(navigation.DesiredMoveSpeed - motion.Speed, -motion.MaxAcceleration, motion.MaxAcceleration);
+            motion.Speed = math.min(motion.Speed + desiredAcceleration * DeltaTime, motion.MaxSpeed);
+            transform.Position += transform.Forward() * motion.Speed * DeltaTime;
+            // apply linear damping?
+        }
+    }
+}
