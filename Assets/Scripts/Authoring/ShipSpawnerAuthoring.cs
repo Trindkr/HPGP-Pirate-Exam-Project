@@ -7,22 +7,23 @@ namespace Authoring
 {
     public class ShipSpawnerAuthoring : MonoBehaviour
     {
-        [SerializeField] private GameObject _prefab;
-        [SerializeField] private SimulationConfig _simulationConfig;
+        public GameObject Prefab;
+        public SimulationConfig SimulationConfig;
         
         private class ShipSpawnerBaker : Baker<ShipSpawnerAuthoring>
         {
             public override void Bake(ShipSpawnerAuthoring authoring)
             {
-                var entity = GetEntity(authoring, TransformUsageFlags.None);
-                AddComponent(entity, new ShipSpawner
+                var spawner = GetEntity(authoring, TransformUsageFlags.None);
+                
+                AddComponent(spawner, new ShipSpawner
                 {
-                    ShipPrefab = GetEntity(authoring._prefab, TransformUsageFlags.Dynamic),
-                    NumberOfShips = authoring._simulationConfig.NumberOfShips,
-                    MaxAngularAcceleration = authoring._simulationConfig.MaxAngularAcceleration,
-                    MaxAngularSpeed = authoring._simulationConfig.MaxAngularSpeed,
-                    MaxLinearAcceleration = authoring._simulationConfig.MaxLinearAcceleration,
-                    MaxLinearSpeed = authoring._simulationConfig.MaxLinearSpeed
+                    ShipPrefab = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic),
+                    NumberOfShips = authoring.SimulationConfig.NumberOfShips,
+                    MaxAngularAcceleration = authoring.SimulationConfig.MaxAngularAcceleration,
+                    MaxAngularSpeed = authoring.SimulationConfig.MaxAngularSpeed,
+                    MaxLinearAcceleration = authoring.SimulationConfig.MaxLinearAcceleration,
+                    MaxLinearSpeed = authoring.SimulationConfig.MaxLinearSpeed
                 });
             }
         }

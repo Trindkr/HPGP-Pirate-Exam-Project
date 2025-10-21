@@ -34,16 +34,9 @@ namespace Systems
                     for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
                     {
                         var ship = ecb.Instantiate(spawner.ValueRO.ShipPrefab);
-                        var localTransform = LocalTransform.FromPosition(new float3(i * 10, 0, j * 10));
+                        var localTransform =
+                            LocalTransform.FromPosition(new float3(i * 10 + i * j / 3f, 0, j * 10 + i * j / 2f));
                         ecb.SetComponent(ship, localTransform);
-
-                        // ecb.AddComponent(ship, new Ship
-                        // {
-                        //     Random = Random.CreateFromIndex(i),
-                        //     Speed = 1.0f,
-                        //     MaxTurningSpeed = 0.2f,
-                        //     AngularVelocity = 0f
-                        // });
 
                         ecb.AddComponent(ship, new AngularMotion
                         {
@@ -57,7 +50,7 @@ namespace Systems
                             MaxSpeed = spawner.ValueRO.MaxLinearSpeed,
                         });
 
-                        ecb.AddComponent(ship, new Navigation());
+                        ecb.AddComponent<Navigation>(ship);
                     }
                 }
             }

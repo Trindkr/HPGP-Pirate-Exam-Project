@@ -16,4 +16,4 @@ MonoBehaviour:
   MaxAngularAcceleration: 1
   MaxAngularSpeed: 100
   MaxLinearAcceleration: 0.01
-  MaxLinearSpeed: 3
+  MaxLinearSpeed: 10

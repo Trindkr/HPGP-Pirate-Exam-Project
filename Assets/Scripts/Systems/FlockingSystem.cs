@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems
 {
@@ -73,7 +74,8 @@ namespace Systems
                             separation * separationStrength;
 
             navigation.DesiredDirection = new float3(target.x, 0, target.y);
-            navigation.DesiredMoveSpeed = 5f;
+            var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
+            navigation.DesiredMoveSpeed = magnitudeSquared;
         }
     }
 }
