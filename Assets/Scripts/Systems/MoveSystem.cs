@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using Components;
-using ExtensionMethods;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -28,12 +27,15 @@ namespace Systems
 
         public void Execute(ref LocalTransform transform, ref LinearMotion motion, in Navigation navigation)
         {
-            float desiredAcceleration = navigation.DesiredMoveSpeed - motion.Speed;
-            float clampedAcceleration =
-                math.clamp(desiredAcceleration, -motion.MaxAcceleration, motion.MaxAcceleration);
-            motion.Speed += clampedAcceleration;
-            motion.Speed = math.min(motion.Speed, motion.MaxSpeed);
-            transform.MoveForward(motion.Speed * DeltaTime);
+            float desiredAcceleration = math.clamp(navigation.DesiredMoveSpeed - motion.Speed, -motion.MaxAcceleration, motion.MaxAcceleration);
+            motion.Speed = math.min(motion.Speed + desiredAcceleration, motion.MaxSpeed);
+            transform.Position += WorldSpaceTranslation(transform, motion.Speed * DeltaTime);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float3 WorldSpaceTranslation(in LocalTransform transform, float amountToMoveForward)
+        {
+            return math.rotate(transform.Rotation, new float3(0, 0, amountToMoveForward));
         }
     }
 }
