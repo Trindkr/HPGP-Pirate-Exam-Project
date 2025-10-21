@@ -28,22 +28,33 @@ namespace Systems
 
         public void Execute(ref LocalTransform transform, ref AngularMotion motion, in Navigation navigation)
         {
-            if (math.lengthsq(navigation.DesiredDirection) < 0.0001f)
-            {
-                // motion.Speed = MoveTowards(motion.Speed, 0f, motion.MaxAcceleration * DeltaTime);
-                return;
-            }
+            var acceleration = GetAcceleration(ref transform, motion, navigation);
+            ApplyAcceleration(ref motion, acceleration);
+            Debug.Log(motion.Speed);
+            transform = transform.RotateY(motion.Speed * DeltaTime);
+        }
 
-            var desiredRotation = quaternion.Euler(navigation.DesiredDirection);
-            transform.Rotation = MoveTowards(transform.Rotation, desiredRotation, motion.MaxSpeed * DeltaTime);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ApplyAcceleration(ref AngularMotion motion, float acceleration)
+        {
+            motion.Speed = math.clamp(motion.Speed + acceleration * DeltaTime, -motion.MaxSpeed, motion.MaxSpeed);
+        }
 
-            // float angleDifference = AngleBetweenDegrees(transform.Forward(), navigation.DesiredDirection);
-            // float clampedAcceleration = math.clamp(angleDifference, -motion.MaxAcceleration, motion.MaxAcceleration);
-            // motion.Speed += clampedAcceleration;
-            // motion.Speed = math.min(motion.Speed, motion.MaxSpeed);
-            // transform.Rotation = math.mul(quaternion.RotateY(motion.Speed * DeltaTime), transform.Rotation);
+        [BurstCompile]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float GetAcceleration(ref LocalTransform transform, in AngularMotion motion, in Navigation navigation)
+        {
+            float2 forward = transform.Forward().xz;
+            float2 target = math.normalize(navigation.DesiredDirection).xz;
 
-            // transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(AngleBetweenRadians(transform.Forward(), navigation.DesiredDirection)));
+            float crossY = forward.y * target.x - forward.x * target.y;
+            float dot = math.clamp(math.dot(forward, target), -1f, 1f);
+            float theta = math.atan2(crossY, dot);
+
+            float desiredSpeed = math.clamp(theta, -motion.MaxSpeed, motion.MaxSpeed);
+            float acceleration = math.clamp(desiredSpeed - motion.Speed, -motion.MaxAcceleration, motion.MaxAcceleration);
+
+            return acceleration;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
