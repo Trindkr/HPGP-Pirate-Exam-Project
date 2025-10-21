@@ -36,6 +36,7 @@ namespace Systems
     public partial struct FlockingJob : IJobEntity
     {
         [ReadOnly] public NativeArray<LocalTransform> Transforms;
+        // make configurable
         private const float MaxDistance = 500f;
 
         public void Execute(in LocalTransform transform, ref Navigation navigation)
