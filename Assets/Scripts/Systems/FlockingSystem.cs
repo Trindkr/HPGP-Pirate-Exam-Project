@@ -1,10 +1,10 @@
+using System;
 using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Systems
 {
@@ -42,29 +42,35 @@ namespace Systems
             float2 myPosition = transform.Position.xz;
 
             var nearbyCount = 1;
-            var center = new float2();
+            var cohesion = new float2();
             var alignment = new float2();
             var separation = new float2();
 
             foreach (LocalTransform other in Transforms)
             {
-                var otherPosition = other.Position.xz;
-                var offset = otherPosition - myPosition;
-                var squareDistance = math.lengthsq(offset);
-                if (squareDistance is > MaxDistance or 0) continue;
+                float2 otherPosition = other.Position.xz;
+                float2 offset = otherPosition - myPosition;
+                float squareDistance = math.lengthsq(offset);
+                if (squareDistance is > MaxDistance or 0f or float.NaN) continue;
 
                 nearbyCount++;
-                center += offset;
+                cohesion += offset;
                 alignment += other.Forward().xz;
 
                 separation -= offset * (1.0f / squareDistance - 1.0f / MaxDistance);
             }
 
-            var average = 1f / nearbyCount;
-            center *= average;
-            alignment *= average;
+            float inverseNearbyCount = 1f / nearbyCount;
+            cohesion *= inverseNearbyCount;
+            alignment *= inverseNearbyCount;
 
-            float2 target = center + alignment + separation;
+            const float alignmentStrength = 7f;
+            const float cohesionStrength = .8f;
+            const float separationStrength = 50f;
+
+            float2 target = alignment * alignmentStrength + 
+                            cohesion * cohesionStrength +
+                            separation * separationStrength;
 
             navigation.DesiredDirection = new float3(target.x, 0, target.y);
             navigation.DesiredMoveSpeed = 5f;

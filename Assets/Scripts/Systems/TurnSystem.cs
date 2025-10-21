@@ -28,9 +28,10 @@ namespace Systems
 
         public void Execute(ref LocalTransform transform, ref AngularMotion motion, in Navigation navigation)
         {
+            if (math.lengthsq(navigation.DesiredDirection) < 0.0001f) return;
+            
             var acceleration = GetAcceleration(ref transform, motion, navigation);
             ApplyAcceleration(ref motion, acceleration);
-            Debug.Log(motion.Speed);
             transform = transform.RotateY(motion.Speed * DeltaTime);
         }
 

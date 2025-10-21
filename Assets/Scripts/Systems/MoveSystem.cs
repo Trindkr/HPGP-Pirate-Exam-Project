@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Components;
+using ExtensionMethods;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -33,16 +34,6 @@ namespace Systems
             motion.Speed += clampedAcceleration;
             motion.Speed = math.min(motion.Speed, motion.MaxSpeed);
             transform.MoveForward(motion.Speed * DeltaTime);
-        }
-    }
-
-    [BurstCompile]
-    public static class MoveExtensions
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MoveForward(this ref LocalTransform transform, float amountToMoveForward)
-        {
-            transform.Position += math.rotate(transform.Rotation, new float3(0, 0, amountToMoveForward));
         }
     }
 }

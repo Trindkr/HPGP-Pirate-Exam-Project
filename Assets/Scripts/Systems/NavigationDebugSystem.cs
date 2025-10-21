@@ -16,14 +16,14 @@ namespace Systems
                 var position = transform.ValueRO.Position;
                 var desiredDirection = navigation.ValueRO.DesiredDirection;
                 Debug.DrawLine(position, position + desiredDirection, Color.red);
-
+                
                 var forward = transform.ValueRO.Forward();
                 var speed = navigation.ValueRO.DesiredMoveSpeed;
                 Debug.DrawLine(position, position + forward * speed, Color.yellow);
                 
-                // var pointAroundTransform = new float3(Mathf.Cos((float)SystemAPI.Time.ElapsedTime * 5f), 0, Mathf.Sin((float)SystemAPI.Time.ElapsedTime * 5f));
-                // float radius = math.sqrt(500);
-                // Debug.DrawLine(position, position + pointAroundTransform * radius, Color.green);
+                var pointAroundTransform = new float3(Mathf.Cos((float)SystemAPI.Time.ElapsedTime * 5f), 0, Mathf.Sin((float)SystemAPI.Time.ElapsedTime * 5f));
+                float radius = math.sqrt(500);
+                Debug.DrawLine(position, position + pointAroundTransform * radius, Color.green);
             }
         }
     }
