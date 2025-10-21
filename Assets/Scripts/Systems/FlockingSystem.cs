@@ -28,7 +28,7 @@ namespace Systems
             {
                 Transforms = transforms,
             };
-            state.Dependency = flockingJob.ScheduleParallel(state.Dependency);
+            flockingJob.ScheduleParallel(state.Dependency).Complete();
         }
     }
 
