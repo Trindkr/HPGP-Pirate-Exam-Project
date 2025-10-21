@@ -1,12 +1,10 @@
 using Components;
 using Components.Tags;
-using Monobehaviours;
 using ScriptableObjects;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Authoring
 {
@@ -14,7 +12,6 @@ namespace Authoring
     {
         public GameObject Prefab;
         public SimulationConfig SimulationConfig;
-        public FirstPersonCamera FirstPersonCamera;
         
         private class FirstPersonShipBaker : Baker<FirstPersonShipAuthoring>
         {
@@ -23,7 +20,7 @@ namespace Authoring
                 var firstPersonShip = GetEntity(authoring, TransformUsageFlags.Dynamic);
                 AddComponent(firstPersonShip, new LocalTransform
                 {
-                    Position = new float3(-5f, 0, -5f),
+                    Position = authoring.transform.position,
                     Rotation = quaternion.identity,
                     Scale = 1f
                 });

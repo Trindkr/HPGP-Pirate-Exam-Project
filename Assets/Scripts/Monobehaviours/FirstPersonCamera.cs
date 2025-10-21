@@ -1,6 +1,7 @@
 using System;
 using Components.Tags;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -10,8 +11,6 @@ namespace Monobehaviours
     {
         private Entity _entity;
         private EntityManager _entityManager;
-
-        public Vector3 Position;
         
         private void Start()
         {
@@ -29,7 +28,8 @@ namespace Monobehaviours
             if (_entity != Entity.Null && _entityManager.HasComponent<LocalTransform>(_entity))
             {
                 var firstPersonTransform = _entityManager.GetComponentData<LocalTransform>(_entity);
-                Position = firstPersonTransform.Position;
+                transform.position = firstPersonTransform.Position;
+                transform.rotation = firstPersonTransform.Rotation;
             }
         }
     }

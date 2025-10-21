@@ -129,7 +129,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3908473009372495244, guid: 1f813b9e93df81144a535e949654d03d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5
+      value: 54.7
       objectReference: {fileID: 0}
     - target: {fileID: 3908473009372495244, guid: 1f813b9e93df81144a535e949654d03d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -137,7 +137,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3908473009372495244, guid: 1f813b9e93df81144a535e949654d03d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5
+      value: -16.52
       objectReference: {fileID: 0}
     - target: {fileID: 3908473009372495244, guid: 1f813b9e93df81144a535e949654d03d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -198,7 +198,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.FirstPersonShipAuthoring
   Prefab: {fileID: 4428867827300640566, guid: 1f813b9e93df81144a535e949654d03d, type: 3}
   SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
-  FirstPersonCamera: {fileID: 0}
 --- !u!1 &1890053601
 GameObject:
   m_ObjectHideFlags: 0
