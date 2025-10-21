@@ -1,4 +1,3 @@
-using System;
 using Components.Tags;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -11,6 +10,8 @@ namespace Monobehaviours
     {
         private Entity _entity;
         private EntityManager _entityManager;
+        
+        [SerializeField] private float3 _offset;
         
         private void Start()
         {
@@ -28,8 +29,8 @@ namespace Monobehaviours
             if (_entity != Entity.Null && _entityManager.HasComponent<LocalTransform>(_entity))
             {
                 var firstPersonTransform = _entityManager.GetComponentData<LocalTransform>(_entity);
-                transform.position = firstPersonTransform.Position;
                 transform.rotation = firstPersonTransform.Rotation;
+                transform.position = math.mul(firstPersonTransform.Rotation, _offset) + firstPersonTransform.Position;
             }
         }
     }
