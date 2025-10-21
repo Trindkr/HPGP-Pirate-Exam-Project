@@ -16,7 +16,7 @@ namespace Systems
             {
                 DeltaTime = SystemAPI.Time.DeltaTime
             };
-            moveJob.ScheduleParallel(state.Dependency).Complete();
+            state.Dependency = moveJob.ScheduleParallel(state.Dependency);
         }
     }
 
@@ -28,14 +28,9 @@ namespace Systems
         public void Execute(ref LocalTransform transform, ref LinearMotion motion, in Navigation navigation)
         {
             float desiredAcceleration = math.clamp(navigation.DesiredMoveSpeed - motion.Speed, -motion.MaxAcceleration, motion.MaxAcceleration);
-            motion.Speed = math.min(motion.Speed + desiredAcceleration, motion.MaxSpeed);
-            transform.Position += WorldSpaceTranslation(transform, motion.Speed * DeltaTime);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float3 WorldSpaceTranslation(in LocalTransform transform, float amountToMoveForward)
-        {
-            return math.rotate(transform.Rotation, new float3(0, 0, amountToMoveForward));
+            motion.Speed = math.min(motion.Speed + desiredAcceleration * DeltaTime, motion.MaxSpeed);
+            transform.Position += transform.Forward() * motion.Speed * DeltaTime;
+            // apply linear damping?
         }
     }
 }

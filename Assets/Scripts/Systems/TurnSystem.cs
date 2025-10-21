@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [BurstCompile]
+    [BurstCompile, UpdateBefore(typeof(MoveSystem))]
     public partial struct TurnSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)
@@ -17,7 +17,7 @@ namespace Systems
             {
                 DeltaTime = SystemAPI.Time.DeltaTime
             };
-            moveJob.ScheduleParallel(state.Dependency).Complete();
+            state.Dependency = moveJob.ScheduleParallel(state.Dependency);
         }
     }
 
@@ -26,33 +26,35 @@ namespace Systems
     {
         public float DeltaTime;
 
-        public void Execute(ref LocalTransform transform, ref AngularMotion motion, in Navigation navigation)
+        public void Execute(ref LocalTransform transform, ref AngularMotion angularMotion, in Navigation navigation)
         {
             if (math.lengthsq(navigation.DesiredDirection) < 0.0001f) return;
             
-            var acceleration = GetAcceleration(ref transform, motion, navigation);
-            ApplyAcceleration(ref motion, acceleration);
-            transform = transform.RotateY(motion.Speed * DeltaTime);
+            var acceleration = GetAcceleration(transform, angularMotion, navigation);
+            angularMotion = ApplyAcceleration(angularMotion, acceleration);
+            transform = transform.RotateY(angularMotion.Speed * DeltaTime);
+            // apply angular damping?
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ApplyAcceleration(ref AngularMotion motion, float acceleration)
+        private AngularMotion ApplyAcceleration(AngularMotion angularMotion, float acceleration)
         {
-            motion.Speed = math.clamp(motion.Speed + acceleration * DeltaTime, -motion.MaxSpeed, motion.MaxSpeed);
+            angularMotion.Speed = math.clamp(angularMotion.Speed + acceleration * DeltaTime, -angularMotion.MaxSpeed, angularMotion.MaxSpeed);
+            return angularMotion;
         }
 
         [BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float GetAcceleration(ref LocalTransform transform, in AngularMotion motion, in Navigation navigation)
+        private static float GetAcceleration(in LocalTransform transform, in AngularMotion motion, in Navigation navigation)
         {
             float2 forward = transform.Forward().xz;
             float2 target = math.normalize(navigation.DesiredDirection).xz;
 
-            float crossY = forward.y * target.x - forward.x * target.y;
-            float dot = math.clamp(math.dot(forward, target), -1f, 1f);
-            float theta = math.atan2(crossY, dot);
+            float up = forward.y * target.x - forward.x * target.y; // is this float3(0f, 1f, 0f) ?
+            float dot = math.clamp(math.dot(forward, target), -1f, 1f); // remove clamp ?
+            float angleRadians = math.atan2(up, dot);
 
-            float desiredSpeed = math.clamp(theta, -motion.MaxSpeed, motion.MaxSpeed);
+            float desiredSpeed = math.clamp(angleRadians, -motion.MaxSpeed, motion.MaxSpeed);
             float acceleration = math.clamp(desiredSpeed - motion.Speed, -motion.MaxAcceleration, motion.MaxAcceleration);
 
             return acceleration;

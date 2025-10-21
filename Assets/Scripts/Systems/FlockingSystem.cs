@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [BurstCompile]
+    [BurstCompile, UpdateBefore(typeof(TurnSystem))]
     public partial struct FlockingSystem : ISystem
     {
         private EntityQuery _query;
@@ -28,7 +28,7 @@ namespace Systems
             {
                 Transforms = transforms,
             };
-            flockingJob.ScheduleParallel(state.Dependency).Complete();
+            state.Dependency = flockingJob.ScheduleParallel(state.Dependency);
         }
     }
 
@@ -65,6 +65,7 @@ namespace Systems
             cohesion *= inverseNearbyCount;
             alignment *= inverseNearbyCount;
 
+            // make config file for this
             const float alignmentStrength = 7f;
             const float cohesionStrength = .8f;
             const float separationStrength = 50f;

@@ -15,5 +15,5 @@ MonoBehaviour:
   NumberOfShips: 10
   MaxAngularAcceleration: 1
   MaxAngularSpeed: 100
-  MaxLinearAcceleration: 0.01
+  MaxLinearAcceleration: 1
   MaxLinearSpeed: 10
