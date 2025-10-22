@@ -51,6 +51,7 @@ namespace Systems
                         });
 
                         ecb.AddComponent<Navigation>(ship);
+                        ecb.AddComponent<Merchant>(ship);
                     }
                 }
             }
