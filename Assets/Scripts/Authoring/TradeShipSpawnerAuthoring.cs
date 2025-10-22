@@ -5,21 +5,21 @@ using UnityEngine;
 
 namespace Authoring
 {
-    public class ShipSpawnerAuthoring : MonoBehaviour
+    public class TradeShipSpawnerAuthoring : MonoBehaviour
     {
         public GameObject Prefab;
         public SimulationConfig SimulationConfig;
         
-        private class ShipSpawnerBaker : Baker<ShipSpawnerAuthoring>
+        private class TradeShipSpawnerBaker : Baker<TradeShipSpawnerAuthoring>
         {
-            public override void Bake(ShipSpawnerAuthoring authoring)
+            public override void Bake(TradeShipSpawnerAuthoring authoring)
             {
                 var spawner = GetEntity(authoring, TransformUsageFlags.None);
                 
-                AddComponent(spawner, new ShipSpawner
+                AddComponent(spawner, new TradeShipSpawner
                 {
                     ShipPrefab = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic),
-                    //NumberOfShips = authoring.SimulationConfig.NumberOfShips,
+                    NumberOfShips = authoring.SimulationConfig.NumberOfPirateShips,
                     MaxAngularAcceleration = authoring.SimulationConfig.MaxAngularAcceleration,
                     MaxAngularSpeed = authoring.SimulationConfig.MaxAngularSpeed,
                     MaxLinearAcceleration = authoring.SimulationConfig.MaxLinearAcceleration,
