@@ -1,5 +1,6 @@
 using System;
 using Components;
+using ExtensionMethods;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -76,7 +77,7 @@ namespace Systems
                             cohesion * cohesionStrength +
                             separation * separationStrength;
 
-            navigation.DesiredDirection = new float3(target.x, 0, target.y);
+            navigation.DesiredDirection = target.x0z();
             var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
             navigation.DesiredMoveSpeed = magnitudeSquared;
         }
