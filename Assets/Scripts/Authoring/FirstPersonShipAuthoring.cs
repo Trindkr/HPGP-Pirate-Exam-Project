@@ -27,14 +27,14 @@ namespace Authoring
                 
                 AddComponent(firstPersonShip, new AngularMotion
                 {
-                    MaxAcceleration = authoring.SimulationConfig.MaxAngularAcceleration,
-                    MaxSpeed = authoring.SimulationConfig.MaxAngularSpeed,
+                    MaxAcceleration = authoring.SimulationConfig.SailingConstraints.MaxAngularAcceleration,
+                    MaxSpeed = authoring.SimulationConfig.SailingConstraints.MaxAngularSpeed,
                 });
 
                 AddComponent(firstPersonShip, new LinearMotion
                 {
-                    MaxAcceleration = authoring.SimulationConfig.MaxLinearAcceleration,
-                    MaxSpeed = authoring.SimulationConfig.MaxLinearSpeed,
+                    MaxAcceleration = authoring.SimulationConfig.SailingConstraints.MaxLinearAcceleration,
+                    MaxSpeed = authoring.SimulationConfig.SailingConstraints.MaxLinearSpeed,
                 });
 
                 AddComponent<Navigation>(firstPersonShip);
