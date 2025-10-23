@@ -30,13 +30,13 @@ namespace Systems
             new(163f, 0f, 222f)
         };
 
-        public void Execute(ref LocalTransform transform, ref Merchant merchant, ref Navigation navigation)
+        public void Execute(ref LocalTransform transform, ref IslandSeeker islandSeeker, ref Navigation navigation)
         {
-            var targetIsland = Islands[merchant.IslandIndex];
+            var targetIsland = Islands[islandSeeker.IslandIndex];
             var offset = targetIsland - transform.Position;
             if (math.length(offset) < 70)
             {
-                merchant.IslandIndex = (merchant.IslandIndex + 1) % Islands.Length;
+                islandSeeker.IslandIndex = (islandSeeker.IslandIndex + 1) % Islands.Length;
             }
 
             navigation.DesiredDirection += math.normalize(offset) * 15f;

@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace Components
 {
-    public struct Merchant : IComponentData
+    public struct IslandSeeker : IComponentData
     {
         public int IslandIndex;
     }

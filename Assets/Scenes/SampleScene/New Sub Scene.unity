@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 479d147f5af02524f9c0a0de17c6e8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.PirateShipSpawnerAuthoring
-  Prefab: {fileID: 6595574268309673660, guid: 417aac7c32a5314408e3a0a39c6b8aff, type: 3}
+  Prefab: {fileID: 4428867827300640566, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
   SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
 --- !u!4 &1470835493
 Transform:
@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e97e715fe0b6bb64cad4afe925cd62fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.TradeShipSpawnerAuthoring
-  Prefab: {fileID: 6595574268309673660, guid: 417aac7c32a5314408e3a0a39c6b8aff, type: 3}
+  Prefab: {fileID: 4428867827300640566, guid: 7e40269605c6ae94f9bf6a3a345c177b, type: 3}
   SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
 --- !u!4 &1566640947
 Transform:
