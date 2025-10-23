@@ -1,3 +1,4 @@
+using Model;
 using Unity.Entities;
 
 namespace Components
@@ -6,9 +7,6 @@ namespace Components
     {
         public Entity ShipPrefab;
         public int NumberOfShips;
-        public float MaxAngularAcceleration;
-        public float MaxAngularSpeed;
-        public float MaxLinearAcceleration;
-        public float MaxLinearSpeed;
+        public SailingConstraints SailingConstraints;
     }
 }

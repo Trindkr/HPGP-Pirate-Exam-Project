@@ -40,14 +40,14 @@ namespace Systems
 
                         ecb.AddComponent(ship, new AngularMotion
                         {
-                            MaxAcceleration = spawner.ValueRO.MaxAngularAcceleration,
-                            MaxSpeed = spawner.ValueRO.MaxAngularSpeed,
+                            MaxAcceleration = spawner.ValueRO.SailingConstraints.MaxAngularAcceleration,
+                            MaxSpeed = spawner.ValueRO.SailingConstraints.MaxAngularSpeed,
                         });
 
                         ecb.AddComponent(ship, new LinearMotion
                         {
-                            MaxAcceleration = spawner.ValueRO.MaxLinearAcceleration,
-                            MaxSpeed = spawner.ValueRO.MaxLinearSpeed,
+                            MaxAcceleration = spawner.ValueRO.SailingConstraints.MaxLinearAcceleration,
+                            MaxSpeed = spawner.ValueRO.SailingConstraints.MaxLinearSpeed,
                         });
 
                         ecb.AddComponent<Navigation>(ship);

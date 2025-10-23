@@ -20,10 +20,7 @@ namespace Authoring
                 {
                     ShipPrefab = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic),
                     NumberOfShips = authoring.SimulationConfig.NumberOfPirateShips,
-                    MaxAngularAcceleration = authoring.SimulationConfig.MaxAngularAcceleration,
-                    MaxAngularSpeed = authoring.SimulationConfig.MaxAngularSpeed,
-                    MaxLinearAcceleration = authoring.SimulationConfig.MaxLinearAcceleration,
-                    MaxLinearSpeed = authoring.SimulationConfig.MaxLinearSpeed
+                    SailingConstraints = authoring.SimulationConfig.SailingConstraints,
                 });
             }
         }

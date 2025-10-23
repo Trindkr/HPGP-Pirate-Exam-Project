@@ -1,3 +1,5 @@
+using Components;
+using Model;
 using UnityEngine;
 
 namespace ScriptableObjects
@@ -7,9 +9,6 @@ namespace ScriptableObjects
     {
         public int NumberOfPirateShips;
         public int NumberOfTradeShips;
-        public float MaxAngularAcceleration;
-        public float MaxAngularSpeed;
-        public float MaxLinearAcceleration;
-        public float MaxLinearSpeed;
+        public SailingConstraints  SailingConstraints;
     }
 }
