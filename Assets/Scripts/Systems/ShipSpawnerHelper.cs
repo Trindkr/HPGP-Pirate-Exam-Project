@@ -8,7 +8,7 @@ namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void SpawnBoats(EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints,
+        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints,
             int numberOfShips, uint2 startingOffset)
         {
             var xAmount = (uint) math.round(math.sqrt(numberOfShips));
@@ -17,12 +17,12 @@ namespace Systems
             {
                 for (uint x = 0; x < xAmount; x++)
                 {
-                    AddDefaultShipComponents(ecb, prefab, sailingConstraints, x, z, startingOffset);
+                    AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, x, z, startingOffset);
                 }
             }
         }
         
-        private static void AddDefaultShipComponents(EntityCommandBuffer ecb,
+        private static void AddDefaultShipComponents(ref EntityCommandBuffer ecb,
             Entity prefab,
             SailingConstraints sailingConstraints,
             uint x, uint z, uint2 startingOffset)

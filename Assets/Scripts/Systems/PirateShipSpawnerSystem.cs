@@ -30,7 +30,7 @@ namespace Systems
             foreach (var spawner in SystemAPI.Query<RefRO<PirateShipSpawner>>())
             {
                 ShipSpawnerHelper.SpawnBoats(
-                    ecb, 
+                    ref ecb, 
                     spawner.ValueRO.ShipPrefab, 
                     spawner.ValueRO.SailingConstraints, 
                     spawner.ValueRO.NumberOfShips, 
