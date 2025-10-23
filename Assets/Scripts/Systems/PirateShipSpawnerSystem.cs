@@ -29,28 +29,12 @@ namespace Systems
         {
             foreach (var spawner in SystemAPI.Query<RefRO<PirateShipSpawner>>())
             {
-                for (int j = 0; j < spawner.ValueRO.NumberOfShips; j++)
+                for (uint j = 0; j < spawner.ValueRO.NumberOfShips; j++)
                 {
                     for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
                     {
-                        var ship = ecb.Instantiate(spawner.ValueRO.ShipPrefab);
-                        var localTransform =
-                            LocalTransform.FromPosition(new float3(i * 10 + i * j / 3f, 0, j * 10 + i * j / 2f));
-                        ecb.SetComponent(ship, localTransform);
+                        ShipSpawnerHelper.AddDefaultShipComponents(ecb, spawner.ValueRO.ShipPrefab, spawner.ValueRO.SailingConstraints, i+10, j+10);
 
-                        ecb.AddComponent(ship, new AngularMotion
-                        {
-                            MaxAcceleration = spawner.ValueRO.SailingConstraints.MaxAngularAcceleration,
-                            MaxSpeed = spawner.ValueRO.SailingConstraints.MaxAngularSpeed,
-                        });
-
-                        ecb.AddComponent(ship, new LinearMotion
-                        {
-                            MaxAcceleration = spawner.ValueRO.SailingConstraints.MaxLinearAcceleration,
-                            MaxSpeed = spawner.ValueRO.SailingConstraints.MaxLinearSpeed,
-                        });
-
-                        ecb.AddComponent<Navigation>(ship);
                     }
                 }
             }
