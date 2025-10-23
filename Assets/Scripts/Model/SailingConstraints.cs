@@ -1,11 +1,10 @@
-using Unity.Entities;
+using System;
 
-namespace Components
+namespace Model
 {
-    public struct ShipSpawner : IComponentData
+    [Serializable]
+    public struct SailingConstraints
     {
-        public Entity ShipPrefab;
-        public int NumberOfShips;
         public float MaxAngularAcceleration;
         public float MaxAngularSpeed;
         public float MaxLinearAcceleration;
