@@ -3,7 +3,7 @@ using Unity.Entities;
 
 namespace Components
 {
-    public struct TradeShipSpawner : IComponentData
+    public struct MerchantSpawner : IComponentData
     {
         public Entity ShipPrefab;
         public int NumberOfShips;

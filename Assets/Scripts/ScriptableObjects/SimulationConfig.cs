@@ -1,6 +1,7 @@
 using Components;
 using Model;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ScriptableObjects
 {
@@ -8,7 +9,7 @@ namespace ScriptableObjects
     public class SimulationConfig : ScriptableObject
     {
         public int NumberOfPirateShips;
-        public int NumberOfTradeShips;
+        public int NumberOfMerchants;
         public SailingConstraints  SailingConstraints;
     }
 }

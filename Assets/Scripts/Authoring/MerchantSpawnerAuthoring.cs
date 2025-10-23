@@ -5,18 +5,18 @@ using UnityEngine;
 
 namespace Authoring
 {
-    public class TradeShipSpawnerAuthoring : MonoBehaviour
+    public class MerchantSpawnerAuthoring : MonoBehaviour
     {
         public GameObject Prefab;
         public SimulationConfig SimulationConfig;
         
-        private class TradeShipSpawnerBaker : Baker<TradeShipSpawnerAuthoring>
+        private class MerchantSpawnerBaker : Baker<MerchantSpawnerAuthoring>
         {
-            public override void Bake(TradeShipSpawnerAuthoring authoring)
+            public override void Bake(MerchantSpawnerAuthoring authoring)
             {
                 var spawner = GetEntity(authoring, TransformUsageFlags.None);
                 
-                AddComponent(spawner, new TradeShipSpawner
+                AddComponent(spawner, new MerchantSpawner
                 {
                     ShipPrefab = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic),
                     NumberOfShips = authoring.SimulationConfig.NumberOfPirateShips,
