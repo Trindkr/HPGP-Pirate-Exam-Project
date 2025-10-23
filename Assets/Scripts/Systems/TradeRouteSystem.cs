@@ -25,8 +25,8 @@ namespace Systems
         {
             new(-132.2f, 0f, 243.5f),
             new(-368f, 0f, 24f),
-            new(-173.4f, 0, -188.6f),
-            new(143.2f, -2, -90.2f),
+            new(-173.4f, 0f, -188.6f),
+            new(143.2f, -2f, -90.2f),
             new(163f, 0f, 222f)
         };
 
@@ -34,12 +34,12 @@ namespace Systems
         {
             var targetIsland = Islands[merchant.IslandIndex];
             var offset = targetIsland - transform.Position;
-            if (math.lengthsq(offset) < 100)
+            if (math.length(offset) < 70)
             {
                 merchant.IslandIndex = (merchant.IslandIndex + 1) % Islands.Length;
             }
 
-            navigation.DesiredDirection += math.normalize(offset) * 5f;
+            navigation.DesiredDirection += math.normalize(offset) * 15f;
         }
     }
 }
