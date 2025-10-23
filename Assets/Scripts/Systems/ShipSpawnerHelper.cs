@@ -8,11 +8,28 @@ namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void AddDefaultShipComponents(EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints, uint i, uint j)
+        public static void SpawnBoats(EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints,
+            int numberOfShips, uint2 startingOffset)
+        {
+            var xAmount = (uint) math.round(math.sqrt(numberOfShips));
+            var zAmount = xAmount;
+            for (uint z = 0; z < zAmount; z++)
+            {
+                for (uint x = 0; x < xAmount; x++)
+                {
+                    AddDefaultShipComponents(ecb, prefab, sailingConstraints, x, z, startingOffset);
+                }
+            }
+        }
+        
+        private static void AddDefaultShipComponents(EntityCommandBuffer ecb,
+            Entity prefab,
+            SailingConstraints sailingConstraints,
+            uint x, uint z, uint2 startingOffset)
         {
             var ship = ecb.Instantiate(prefab);
             var localTransform =
-                LocalTransform.FromPosition(new float3(i * 10 + i * j / 3f, 0, j * 10 + i * j / 2f));
+                LocalTransform.FromPosition(new float3(x * 10 + x * z / 3f + startingOffset.x, 0, z * 10 + z * x / 2f + startingOffset.y));
             ecb.SetComponent(ship, localTransform);
 
             ecb.AddComponent(ship, new AngularMotion

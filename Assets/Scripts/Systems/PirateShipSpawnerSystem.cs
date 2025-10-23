@@ -29,14 +29,12 @@ namespace Systems
         {
             foreach (var spawner in SystemAPI.Query<RefRO<PirateShipSpawner>>())
             {
-                for (uint j = 0; j < spawner.ValueRO.NumberOfShips; j++)
-                {
-                    for (uint i = 0; i < spawner.ValueRO.NumberOfShips; i++)
-                    {
-                        ShipSpawnerHelper.AddDefaultShipComponents(ecb, spawner.ValueRO.ShipPrefab, spawner.ValueRO.SailingConstraints, i+10, j+10);
-
-                    }
-                }
+                ShipSpawnerHelper.SpawnBoats(
+                    ecb, 
+                    spawner.ValueRO.ShipPrefab, 
+                    spawner.ValueRO.SailingConstraints, 
+                    spawner.ValueRO.NumberOfShips, 
+                    new uint2(10, 10));
             }
         }
     }
