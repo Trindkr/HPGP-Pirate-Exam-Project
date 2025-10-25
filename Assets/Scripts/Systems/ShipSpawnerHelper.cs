@@ -8,23 +8,25 @@ namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints,
+        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, CannonConstraints cannonConstraints,
             int numberOfShips, uint2 startingOffset)
         {
-            var xAmount = (uint) math.round(math.sqrt(numberOfShips));
+            var xAmount = (uint)math.round(math.sqrt(numberOfShips));
             var zAmount = xAmount;
             for (uint z = 0; z < zAmount; z++)
             {
                 for (uint x = 0; x < xAmount; x++)
                 {
-                    AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, x, z, startingOffset);
+                    AddDefaultShipComponents(ref ecb, shipPrefab, sailingConstraints, cannonballPrefab, cannonConstraints, x, z, startingOffset);
                 }
             }
         }
-        
+
         private static void AddDefaultShipComponents(ref EntityCommandBuffer ecb,
             Entity prefab,
             SailingConstraints sailingConstraints,
+            Entity cannonBallPrefab,
+            CannonConstraints cannonConstraints,
             uint x, uint z, uint2 startingOffset)
         {
             var ship = ecb.Instantiate(prefab);
@@ -45,6 +47,20 @@ namespace Systems
             });
 
             ecb.AddComponent<Navigation>(ship);
+
+            ecb.AddComponent(ship, new Cannon
+            {
+                ReloadTime = cannonConstraints.ReloadTime,
+                ShootingForce = cannonConstraints.ShootingForce,
+                ReloadTimer = 0f,
+                FireLeft = true
+            });
+
+            ecb.AddComponent(ship, new CannonballPrefab
+            {
+                Prefab = cannonBallPrefab
+            });
+
         }
     }
 }
