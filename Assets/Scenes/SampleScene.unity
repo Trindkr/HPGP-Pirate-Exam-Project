@@ -184,6 +184,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1684561930890397163, guid: 1104a560bfcb8dc449c56d1518f27837, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 464.5427
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684561930890397163, guid: 1104a560bfcb8dc449c56d1518f27837, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 29.323774
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684561930890397163, guid: 1104a560bfcb8dc449c56d1518f27837, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 56.390976
+      objectReference: {fileID: 0}
     - target: {fileID: 5904173141961605001, guid: 1104a560bfcb8dc449c56d1518f27837, type: 3}
       propertyPath: m_Name
       value: Island (1) Variant
