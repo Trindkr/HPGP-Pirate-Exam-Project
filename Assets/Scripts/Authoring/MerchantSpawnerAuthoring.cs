@@ -7,7 +7,8 @@ namespace Authoring
 {
     public class MerchantSpawnerAuthoring : MonoBehaviour
     {
-        public GameObject Prefab;
+        public GameObject ShipPrefab;
+        public GameObject CannonballPrefab;
         public SimulationConfig SimulationConfig;
         
         private class MerchantSpawnerBaker : Baker<MerchantSpawnerAuthoring>
@@ -18,9 +19,11 @@ namespace Authoring
                 
                 AddComponent(spawner, new MerchantSpawner
                 {
-                    ShipPrefab = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic),
+                    ShipPrefab = GetEntity(authoring.ShipPrefab, TransformUsageFlags.Dynamic),
+                    CannonballPrefab = GetEntity(authoring.CannonballPrefab, TransformUsageFlags.Dynamic),
                     NumberOfShips = authoring.SimulationConfig.NumberOfPirateShips,
                     SailingConstraints = authoring.SimulationConfig.SailingConstraints,
+                    CannonConstraints = authoring.SimulationConfig.CannonConstraints
                 });
             }
         }
