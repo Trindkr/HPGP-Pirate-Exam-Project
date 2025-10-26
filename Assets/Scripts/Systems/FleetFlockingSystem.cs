@@ -1,10 +1,13 @@
 using Components;
+using Components.Fleet;
+using Systems.Helpers;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
+    [BurstCompile]
     public partial struct FleetFlockingSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)
@@ -13,12 +16,13 @@ namespace Systems
             state.Dependency = job.ScheduleParallel(state.Dependency);
         }
    }
-
+    
+    [BurstCompile]
     public partial struct FleetFlockingJob : IJobEntity
     {
-        private void Execute(in LocalTransform localTransform, in FleetMember fleetMember)
+        private void Execute(ref Navigation navigation, in LocalTransform localTransform, in FleetMember fleetMember)
         {
-            
+            Flocker.Flock(ref navigation, localTransform, fleetMember.Fleet.FleetShips);
         }
     }
 }

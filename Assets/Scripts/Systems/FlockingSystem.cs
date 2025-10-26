@@ -1,11 +1,9 @@
-using System;
 using Components;
+using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Systems
 {
@@ -41,7 +39,7 @@ namespace Systems
 
         public void Execute(in LocalTransform transform, ref Navigation navigation)
         {
-            
+            Flocker.Flock(ref navigation, transform, Transforms, MaxDistance);
         }
     }
 }

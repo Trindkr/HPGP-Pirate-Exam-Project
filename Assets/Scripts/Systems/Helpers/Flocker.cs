@@ -1,17 +1,20 @@
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems.Helpers
 {
     [BurstCompile]
-    public class Flocker
+    public static class Flocker
     {
-        public NativeArray<LocalTransform> FlockMembers { get; }
-        public float MaxDistance { get; }
-        
-        public void Flock(ref LocalTransform localTransform, in NativeArray<LocalTransform> fleetMembers)
+        public static void Flock(
+            ref Navigation navigation, 
+            LocalTransform localTransform, 
+            NativeArray<LocalTransform> fleetMembers,
+            float maxDistance = float.PositiveInfinity)
         {
             float2 myPosition = localTransform.Position.xz;
 
@@ -25,14 +28,15 @@ namespace Systems.Helpers
                 float2 otherPosition = other.Position.xz;
                 float2 offset = otherPosition - myPosition;
                 float squareDistance = math.lengthsq(offset);
-                if (squareDistance is > MaxDistance or 0f or float.NaN) continue;
+                if (squareDistance > maxDistance || squareDistance == 0f) 
+                    continue;
 
                 nearbyCount++;
                 cohesion += offset;
                 alignment += other.Forward().xz;
 
-                // gør det samme med cohesion og alignment, så skiber som er tæt på vægter højere
-                separation -= offset * (1.0f / squareDistance - 1.0f / MaxDistance);
+                // gør det samme med cohesion og alignment, så skibe som er tæt på vægter højere
+                separation -= offset * (1.0f / squareDistance - 1.0f / maxDistance);
             }
 
             float inverseNearbyCount = 1f / nearbyCount;

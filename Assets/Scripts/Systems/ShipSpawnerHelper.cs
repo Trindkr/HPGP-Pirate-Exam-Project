@@ -1,4 +1,5 @@
 using Components;
+using Components.Fleet;
 using Model;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,7 +10,7 @@ namespace Systems
     public static class ShipSpawnerHelper
     {
         public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints,
-            int numberOfShips, uint2 startingOffset)
+            int numberOfShips, uint2 startingOffset, ShipType shipType)
         {
             var xAmount = (uint) math.round(math.sqrt(numberOfShips));
             var zAmount = xAmount;
@@ -17,7 +18,7 @@ namespace Systems
             {
                 for (uint x = 0; x < xAmount; x++)
                 {
-                    AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, x, z, startingOffset);
+                    AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, x, z, startingOffset, shipType);
                 }
             }
         }
@@ -25,7 +26,7 @@ namespace Systems
         private static void AddDefaultShipComponents(ref EntityCommandBuffer ecb,
             Entity prefab,
             SailingConstraints sailingConstraints,
-            uint x, uint z, uint2 startingOffset)
+            uint x, uint z, uint2 startingOffset, ShipType shipType)
         {
             var ship = ecb.Instantiate(prefab);
             var localTransform =
@@ -45,6 +46,11 @@ namespace Systems
             });
 
             ecb.AddComponent<Navigation>(ship);
+            
+            ecb.AddComponent(ship, new FleetMember
+            {
+                ShipType = shipType,
+            });
         }
     }
 }
