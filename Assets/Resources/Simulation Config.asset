@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
   NumberOfPirateShips: 100
   NumberOfTradeShips: 100
+  NumberOfMerchantFleets: 10
+  NumberOfPirateFleets: 10
   SailingConstraints:
     MaxAngularAcceleration: 0.5
     MaxAngularSpeed: 1
