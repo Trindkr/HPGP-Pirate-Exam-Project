@@ -3,6 +3,7 @@ using Model;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor.PackageManager;
 
 namespace Systems
 {
@@ -52,7 +53,7 @@ namespace Systems
             {
                 ReloadTime = cannonConstraints.ReloadTime,
                 ShootingForce = cannonConstraints.ShootingForce,
-                ReloadTimer = 0f,
+                ReloadTimer = UnityEngine.Random.Range(0f, cannonConstraints.ReloadTime),
                 FireLeft = true
             });
 
