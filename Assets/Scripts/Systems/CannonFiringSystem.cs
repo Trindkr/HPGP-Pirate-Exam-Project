@@ -14,6 +14,7 @@ namespace Systems
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
+            state.RequireForUpdate<CannonTag>(); // Only run if there are cannons
         }
 
         [BurstCompile]
@@ -41,28 +42,18 @@ namespace Systems
 
             public void Execute(
                 [ChunkIndexInQuery] int chunkIndex,
-                RefRW<Cannon> cannon,
+                RefRW<CannonConstraints> cannonConstraints,
                 in LocalToWorld shipTransform,
                 in CannonballPrefab cannonballPrefab)
             {
+                cannonConstraints.ValueRW.ReloadTimer -= DeltaTime;
 
-                // TODO:
-                // 1. Count down the reload timer for the cannon, reset when it reaches zero.
-                // 3. Instantiate the cannonball prefab.
-                // 4. Compute the cannon's forward direction and spawn position
-                //      (spawn position is ships posision + some offset perhaps. And the forward direction depends on whether firing left or right, but is a vector perpendicular to the ships forward vector).
-                // 5. Apply an initial PhysicsVelocity to the cannonball based on ShootingForce.
-
-
-                // test if instantiation works
-                cannon.ValueRW.ReloadTimer -= DeltaTime;
-
-                if (cannon.ValueRW.ReloadTimer > 0f)
+                if (cannonConstraints.ValueRW.ReloadTimer > 0f)
                 {
                     return;
                 }
 
-                cannon.ValueRW.ReloadTimer = cannon.ValueRO.ReloadTime;
+                cannonConstraints.ValueRW.ReloadTimer = cannonConstraints.ValueRO.ReloadTime;
                 var cannonball = EntityCommandBuffer.Instantiate(chunkIndex, cannonballPrefab.Prefab);
 
                 float3 spawnPosition = shipTransform.Position;
@@ -74,7 +65,6 @@ namespace Systems
                     Scale = 1f
                 });
             }
-
         }
     }
 }

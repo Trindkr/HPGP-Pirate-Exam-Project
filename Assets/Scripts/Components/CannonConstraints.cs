@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct Cannon : IComponentData
+public struct CannonConstraints : IComponentData
 {
     public float ShootingForce;
     public float ReloadTime;

@@ -11,6 +11,6 @@ namespace ScriptableObjects
         public int NumberOfPirateShips;
         public int NumberOfMerchants;
         public SailingConstraints  SailingConstraints;
-        public CannonConstraints   CannonConstraints;
+        public Model.CannonConstraints   CannonConstraints;
     }
 }

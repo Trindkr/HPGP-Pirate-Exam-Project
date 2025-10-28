@@ -8,7 +8,7 @@ namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, CannonConstraints cannonConstraints,
+        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, Model.CannonConstraints cannonConstraints,
             int numberOfShips, uint2 startingOffset)
         {
             var xAmount = (uint)math.round(math.sqrt(numberOfShips));
@@ -26,7 +26,7 @@ namespace Systems
             Entity prefab,
             SailingConstraints sailingConstraints,
             Entity cannonBallPrefab,
-            CannonConstraints cannonConstraints,
+            Model.CannonConstraints cannonConstraints,
             uint x, uint z, uint2 startingOffset)
         {
             var ship = ecb.Instantiate(prefab);
@@ -48,7 +48,7 @@ namespace Systems
 
             ecb.AddComponent<Navigation>(ship);
 
-            ecb.AddComponent(ship, new Cannon
+            ecb.AddComponent(ship, new CannonConstraints
             {
                 ReloadTime = cannonConstraints.ReloadTime,
                 ShootingForce = cannonConstraints.ShootingForce,
