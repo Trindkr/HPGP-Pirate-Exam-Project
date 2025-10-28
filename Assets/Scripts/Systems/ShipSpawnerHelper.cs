@@ -53,7 +53,7 @@ namespace Systems
             {
                 ReloadTime = cannonConstraints.ReloadTime,
                 ShootingForce = cannonConstraints.ShootingForce,
-                ReloadTimer = UnityEngine.Random.Range(0f, cannonConstraints.ReloadTime),
+                ReloadTimer = UnityEngine.Random.Range(1f, cannonConstraints.ReloadTime),
                 FireLeft = true
             });
 
