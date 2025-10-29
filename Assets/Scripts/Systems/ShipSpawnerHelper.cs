@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEditor.PackageManager;
+using CannonConstraints = Components.CannonConstraints;
 
 namespace Systems
 {

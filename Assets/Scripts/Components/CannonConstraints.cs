@@ -1,9 +1,12 @@
 using Unity.Entities;
 
-public struct CannonConstraints : IComponentData
+namespace Components
 {
-    public float ShootingForce;
-    public float ReloadTime;
-    public float ReloadTimer;
-    public bool FireLeft;
+    public struct CannonConstraints : IComponentData
+    {
+        public float ShootingForce;
+        public float ReloadTime;
+        public float ReloadTimer;
+        public bool FireLeft;
+    }
 }

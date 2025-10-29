@@ -1,8 +1,8 @@
+using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Systems
 {
@@ -39,6 +39,7 @@ namespace Systems
             public float DeltaTime;
             public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;
 
+            
             public void Execute(
                 [ChunkIndexInQuery] int chunkIndex,
                 RefRW<CannonConstraints> cannonConstraints,
@@ -48,22 +49,35 @@ namespace Systems
                 cannonConstraints.ValueRW.ReloadTimer -= DeltaTime;
 
                 if (cannonConstraints.ValueRW.ReloadTimer > 0f)
-                {
                     return;
-                }
 
                 cannonConstraints.ValueRW.ReloadTimer = cannonConstraints.ValueRO.ReloadTime;
+
                 var cannonball = EntityCommandBuffer.Instantiate(chunkIndex, cannonballPrefab.Prefab);
 
-                float3 spawnPosition = shipTransform.Position;
+                var right = math.normalize(math.cross(shipTransform.Up, shipTransform.Forward));
+                var shootDir = cannonConstraints.ValueRO.FireLeft ? -right : right;
+
+                const float upwardAngleDegrees = 30f;
+                var rotationAxis = math.cross(shootDir, shipTransform.Up);
+                shootDir = math.normalize(math.rotate(quaternion.AxisAngle(rotationAxis, math.radians(upwardAngleDegrees)), shootDir));
+
+                var spawnPosition = shipTransform.Position + shootDir * 1.5f;
 
                 EntityCommandBuffer.SetComponent(chunkIndex, cannonball, new LocalTransform
                 {
                     Position = spawnPosition,
-                    Rotation = quaternion.identity,
+                    Rotation = quaternion.LookRotationSafe(shootDir, shipTransform.Up),
                     Scale = 1f
                 });
+
+                EntityCommandBuffer.SetComponent(chunkIndex, cannonball, new Unity.Physics.PhysicsVelocity
+                {
+                    Linear = shootDir * cannonConstraints.ValueRO.ShootingForce,
+                    Angular = float3.zero
+                });
             }
+
         }
     }
 }

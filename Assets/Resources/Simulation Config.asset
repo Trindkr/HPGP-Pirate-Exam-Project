@@ -21,4 +21,4 @@ MonoBehaviour:
     MaxLinearSpeed: 1
   CannonConstraints:
     ReloadTime: 5
-    ShootingForce: 1000
+    ShootingForce: 30
