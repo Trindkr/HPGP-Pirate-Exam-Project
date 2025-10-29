@@ -58,6 +58,8 @@ namespace Systems
                 var right = math.normalize(math.cross(shipTransform.Up, shipTransform.Forward));
                 var shootDir = cannonConstraints.ValueRO.FireLeft ? -right : right;
 
+                cannonConstraints.ValueRW.FireLeft = !cannonConstraints.ValueRO.FireLeft;
+
                 const float upwardAngleDegrees = 30f;
                 var rotationAxis = math.cross(shootDir, shipTransform.Up);
                 shootDir = math.normalize(math.rotate(quaternion.AxisAngle(rotationAxis, math.radians(upwardAngleDegrees)), shootDir));
