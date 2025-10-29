@@ -8,7 +8,10 @@ namespace Authoring
     public class FleetSpawnerAuthoring : MonoBehaviour
     {
         [SerializeField] private SimulationConfig _simulationConfig;
-
+        [SerializeField] private GameObject _pirateShipPrefab;
+        [SerializeField] private GameObject _merchantShipPrefab;
+        
+        
         private class FleetSpawnerBaker : Baker<FleetSpawnerAuthoring>
         {
             public override void Bake(FleetSpawnerAuthoring authoring)
@@ -17,14 +20,18 @@ namespace Authoring
                 
                 AddComponent(spawner, new FleetSpawner
                 {
+                    
                     NumberOfPirateFleets = authoring._simulationConfig.NumberOfPirateFleets,
                     NumberOfMerchantFleets = authoring._simulationConfig.NumberOfMerchantFleets,
-                    MaxMerchantFleetSize = 
-                        authoring._simulationConfig.NumberOfTradeShips 
+                    MerchantShipsPerFleet = 
+                        authoring._simulationConfig.NumberOfMerchantShips 
                         / authoring._simulationConfig.NumberOfMerchantFleets,
-                    MaxPirateFleetSize = 
-                        authoring._simulationConfig.NumberOfPirateFleets 
+                    PirateShipsPerFleet = 
+                        authoring._simulationConfig.NumberOfPirateShips 
                         / authoring._simulationConfig.NumberOfPirateFleets,
+                    PirateShipPrefab = GetEntity(authoring._pirateShipPrefab, TransformUsageFlags.Dynamic),
+                    MerchantShipPrefab = GetEntity(authoring._merchantShipPrefab, TransformUsageFlags.Dynamic),
+                    SailingConstraints = authoring._simulationConfig.SailingConstraints,
                 });
             }
         }

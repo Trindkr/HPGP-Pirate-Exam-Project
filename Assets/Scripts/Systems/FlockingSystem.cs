@@ -1,4 +1,5 @@
 using Components;
+using Components.Tags;
 using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
@@ -30,6 +31,7 @@ namespace Systems
         }
     }
     
+    [WithAll(typeof(AllFlockingTag))]
     [BurstCompile]
     public partial struct FlockingJob : IJobEntity
     {

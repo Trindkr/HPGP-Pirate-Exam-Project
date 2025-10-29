@@ -1,3 +1,4 @@
+using Model;
 using Unity.Entities;
 
 namespace Components.Fleet
@@ -6,7 +7,11 @@ namespace Components.Fleet
     {
         public int NumberOfPirateFleets;
         public int NumberOfMerchantFleets;
-        public int MaxPirateFleetSize;
-        public int MaxMerchantFleetSize;
+        public int PirateShipsPerFleet;
+        public int MerchantShipsPerFleet;
+        
+        public Entity PirateShipPrefab;
+        public Entity MerchantShipPrefab;
+        public SailingConstraints SailingConstraints;
     }
 }

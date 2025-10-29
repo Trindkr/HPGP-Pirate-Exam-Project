@@ -1,9 +1,7 @@
 using Components;
-using Model;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 namespace Systems
 {
@@ -35,8 +33,7 @@ namespace Systems
                     spawner.ValueRO.ShipPrefab, 
                     spawner.ValueRO.SailingConstraints, 
                     spawner.ValueRO.NumberOfShips, 
-                    new uint2(10, 10),
-                    ShipType.Pirate);
+                    new uint2(10, 10));
             }
         }
     }

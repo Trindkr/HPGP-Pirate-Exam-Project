@@ -1,4 +1,3 @@
-using Components;
 using Model;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace ScriptableObjects
     public class SimulationConfig : ScriptableObject
     {
         public int NumberOfPirateShips;
-        public int NumberOfTradeShips;
+        public int NumberOfMerchantShips;
         [Min(1)]
         public int NumberOfMerchantFleets;
         [Min(1)]

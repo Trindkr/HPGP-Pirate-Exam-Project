@@ -1,5 +1,4 @@
 using Components;
-using Model;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -34,8 +33,7 @@ namespace Systems
                     spawner.ValueRO.ShipPrefab, 
                     spawner.ValueRO.SailingConstraints, 
                     spawner.ValueRO.NumberOfShips, 
-                    new uint2(0, 0),
-                    ShipType.Merchant);
+                    new uint2(0, 0));
             }
         }
     }
