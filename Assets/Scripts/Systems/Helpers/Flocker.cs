@@ -55,7 +55,7 @@ namespace Systems.Helpers
                             cohesion * cohesionStrength +
                             separation * separationStrength;
 
-            navigation.DesiredDirection = target.x0z();
+            navigation.DesiredDirection = math.normalize(target.x0z());
             var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
             navigation.DesiredMoveSpeed = magnitudeSquared;
         }

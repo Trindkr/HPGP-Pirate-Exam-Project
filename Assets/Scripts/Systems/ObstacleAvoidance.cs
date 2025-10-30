@@ -1,5 +1,6 @@
 using Components;
 using Components.Fleet;
+using Systems.Fleet;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -9,6 +10,7 @@ using RaycastHit = Unity.Physics.RaycastHit;
 
 namespace Systems
 {
+    [UpdateAfter(typeof(FleetFlockingJob)), UpdateBefore(typeof(TurnSystem))]
     public partial struct ObstacleAvoidance : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -42,31 +44,20 @@ namespace Systems
                 // Possibly make this a sphere cast for wider collision detection
                 if (collisionWorld.CastRay(raycast, out RaycastHit closestHit))
                 {
-                    // Has a fleet component
-                    if (fleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember))
+                    if (!fleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
+                        || otherFleetMember.FleetEntity != fleetMember.ValueRO.FleetEntity)
                     {
-                        if (otherFleetMember.FleetEntity == fleetMember.ValueRO.FleetEntity)
-                        {
-                           // Is same fleet - Do not use avoidance
-                            Debug.DrawLine(
-                                raycastStart, 
-                                closestHit.Position, 
-                                Color.red);
-                            continue;
-                        }
+                        var squaredDistanceToHit =
+                            math.distancesq(raycastStart, closestHit.Position);
+                        float3 normal = closestHit.SurfaceNormal;
+                        float3 avoidanceDirection = math.normalize(math.reflect(forward, normal));
+                        float avoidanceStrength = 100f;
+                        avoidanceDirection *= avoidanceStrength;
+                        Debug.DrawLine(raycastStart, raycastStart + avoidanceDirection, Color.green);
+
+                        navigation.ValueRW.DesiredDirection += avoidanceDirection;
                     }
-                    // Hit something that is not part of the fleet, should avoid
-                    Debug.DrawLine(
-                        raycastStart, 
-                        closestHit.Position, 
-                        Color.green);
-                    continue;
                 }
-                // Hit nothing
-                Debug.DrawLine(
-                    raycastStart, 
-                    raycastEnd,
-                    Color.yellow);
             }
         }
     }

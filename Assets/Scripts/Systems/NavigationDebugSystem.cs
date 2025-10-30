@@ -15,9 +15,9 @@ namespace Systems
         {
             foreach (var (transform, navigation) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<Navigation>>())
             {
-                // var position = transform.ValueRO.Position;
-                // var desiredDirection = navigation.ValueRO.DesiredDirection;
-                // Debug.DrawLine(position, position + desiredDirection, Color.red);
+                var position = transform.ValueRO.Position;
+                var desiredDirection = navigation.ValueRO.DesiredDirection;
+                Debug.DrawLine(position, position + desiredDirection, Color.red);
                 //
                 // var forward = transform.ValueRO.Forward();
                 // var speed = navigation.ValueRO.DesiredMoveSpeed;

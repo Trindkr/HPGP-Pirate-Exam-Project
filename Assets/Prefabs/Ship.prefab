@@ -140,7 +140,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.2, y: 1, z: 7}
+  m_Size: {x: 2.5, y: 1, z: 7}
   m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1 &8849083355309630458
 GameObject:
@@ -193,7 +193,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.2, y: 1, z: 2.2}
+  m_Size: {x: 2.5, y: 1, z: 2.2}
   m_Center: {x: 0, y: 1.6, z: -2.3}
 --- !u!1001 &3582356230861232743
 PrefabInstance:
