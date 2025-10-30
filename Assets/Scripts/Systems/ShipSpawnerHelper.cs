@@ -4,15 +4,17 @@ using Model;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor.PackageManager;
+using CannonConstraints = Components.CannonConstraints;
 
 namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity prefab, SailingConstraints sailingConstraints,
+        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, Model.CannonConstraints cannonConstraints,
             int numberOfShips, uint2 startingOffset)
         {
-            var xAmount = (uint) math.round(math.sqrt(numberOfShips));
+            var xAmount = (uint)math.round(math.sqrt(numberOfShips));
             var zAmount = xAmount;
             for (uint z = 0; z < zAmount; z++)
             {
@@ -49,6 +51,20 @@ namespace Systems
             });
 
             ecb.AddComponent<Navigation>(ship);
+
+            ecb.AddComponent(ship, new CannonConstraints
+            {
+                ReloadTime = cannonConstraints.ReloadTime,
+                ShootingForce = cannonConstraints.ShootingForce,
+                ReloadTimer = UnityEngine.Random.Range(1f, cannonConstraints.ReloadTime),
+                FireLeft = true
+            });
+
+            ecb.AddComponent(ship, new CannonballPrefab
+            {
+                Prefab = cannonBallPrefab
+            });
+
             return ship;
         }
     }

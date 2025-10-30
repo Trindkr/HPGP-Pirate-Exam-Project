@@ -31,7 +31,9 @@ namespace Systems
                 ShipSpawnerHelper.SpawnBoats(
                     ref ecb,
                     spawner.ValueRO.ShipPrefab, 
-                    spawner.ValueRO.SailingConstraints, 
+                    spawner.ValueRO.SailingConstraints,
+                    spawner.ValueRO.CannonballPrefab,
+                    spawner.ValueRO.CannonConstraints,
                     spawner.ValueRO.NumberOfShips, 
                     new uint2(10, 10));
             }

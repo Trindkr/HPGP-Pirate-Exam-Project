@@ -227,7 +227,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 479d147f5af02524f9c0a0de17c6e8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.PirateShipSpawnerAuthoring
-  Prefab: {fileID: 7623022811922074804, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
+  ShipPrefab: {fileID: 7623022811922074804, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
+  CannonballPrefab: {fileID: 9046275581279054898, guid: 99737b1a413fb63488062d2dfec8b061, type: 3}
   SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
 --- !u!4 &1470835493
 Transform:
@@ -273,7 +274,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e97e715fe0b6bb64cad4afe925cd62fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.TradeShipSpawnerAuthoring
-  Prefab: {fileID: 5971831650151182331, guid: ec84e8e7445ebd042a92cc4df6470a3a, type: 3}
+  ShipPrefab: {fileID: 5971831650151182331, guid: ec84e8e7445ebd042a92cc4df6470a3a, type: 3}
+  CannonballPrefab: {fileID: 9046275581279054898, guid: 99737b1a413fb63488062d2dfec8b061, type: 3}
   SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
 --- !u!4 &1566640947
 Transform:
