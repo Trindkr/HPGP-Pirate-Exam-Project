@@ -15,7 +15,7 @@ namespace Systems
             Entity prefab,
             SailingConstraints sailingConstraints,
             Entity cannonBallPrefab,
-            Model.CannonConstraintsConfig cannonConstraintsConfig,
+            Model.CannonConfiguration cannonConfiguration,
             float3 position)
         {
             var ship = ecb.Instantiate(prefab);
@@ -37,7 +37,7 @@ namespace Systems
 
             ecb.AddComponent<Navigation>(ship);
             
-            ecb.AddComponent(ship, CreateCannonConstraintsComponent(cannonConstraintsConfig));
+            ecb.AddComponent(ship, CreateCannonConstraintsComponent(cannonConfiguration));
 
             ecb.AddComponent(ship, new CannonballPrefab
             {
@@ -47,21 +47,21 @@ namespace Systems
             return ship;
         }
 
-        private static CannonConstraints  CreateCannonConstraintsComponent(CannonConstraintsConfig cannonConstraintsConfig)
+        private static CannonConstraints  CreateCannonConstraintsComponent(CannonConfiguration cannonConfiguration)
         {
-            var shootingForce = UnityEngine.Random.Range(cannonConstraintsConfig.MinShootingForce, cannonConstraintsConfig.MaxShootingForce);
-            var shootingAngle = UnityEngine.Random.Range(cannonConstraintsConfig.MinShootingAngle, cannonConstraintsConfig.MaxShootingAngle);
+            var shootingForce = UnityEngine.Random.Range(cannonConfiguration.MinShootingForce, cannonConfiguration.MaxShootingForce);
+            var shootingAngle = UnityEngine.Random.Range(cannonConfiguration.MinShootingAngle, cannonConfiguration.MaxShootingAngle);
             const float gravity = 9.81f;
 
             var shootingRange = (shootingForce * shootingForce * math.sin(2f * math.radians(shootingAngle))) / gravity;
 
             return new CannonConstraints
             {
-                ReloadTime = cannonConstraintsConfig.ReloadTime,
+                ReloadTime = cannonConfiguration.ReloadTime,
                 ShootingAngle = shootingAngle,
                 ShootingForce = shootingForce,
                 ShootingRange = shootingRange,
-                ReloadTimer = UnityEngine.Random.Range(1f, cannonConstraintsConfig.ReloadTime),
+                ReloadTimer = UnityEngine.Random.Range(1f, cannonConfiguration.ReloadTime),
                 ShootingDirection = ShootingDirection.Left
             };
         }
