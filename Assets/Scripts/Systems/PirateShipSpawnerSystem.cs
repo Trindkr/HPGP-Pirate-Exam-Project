@@ -2,7 +2,6 @@ using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 namespace Systems
 {
@@ -30,7 +29,7 @@ namespace Systems
             foreach (var spawner in SystemAPI.Query<RefRO<PirateShipSpawner>>())
             {
                 ShipSpawnerHelper.SpawnBoats(
-                    ref ecb, 
+                    ref ecb,
                     spawner.ValueRO.ShipPrefab, 
                     spawner.ValueRO.SailingConstraints, 
                     spawner.ValueRO.NumberOfShips, 

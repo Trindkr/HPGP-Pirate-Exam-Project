@@ -1,4 +1,5 @@
 using Components;
+using Components.Tags;
 using Model;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -17,19 +18,22 @@ namespace Systems
             {
                 for (uint x = 0; x < xAmount; x++)
                 {
-                    AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, x, z, startingOffset);
+                    var position = new float3(x * 10 + x * z / 3f + startingOffset.x, 0,
+                        z * 10 + z * x / 2f + startingOffset.y);
+                    var ship = AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, position);
+                    ecb.AddComponent(ship, new AllFlockingTag());
                 }
             }
         }
         
-        private static void AddDefaultShipComponents(ref EntityCommandBuffer ecb,
+        public static Entity AddDefaultShipComponents(ref EntityCommandBuffer ecb,
             Entity prefab,
             SailingConstraints sailingConstraints,
-            uint x, uint z, uint2 startingOffset)
+            float3 position)
         {
             var ship = ecb.Instantiate(prefab);
             var localTransform =
-                LocalTransform.FromPosition(new float3(x * 10 + x * z / 3f + startingOffset.x, 0, z * 10 + z * x / 2f + startingOffset.y));
+                LocalTransform.FromPosition(position);
             ecb.SetComponent(ship, localTransform);
 
             ecb.AddComponent(ship, new AngularMotion
@@ -45,6 +49,7 @@ namespace Systems
             });
 
             ecb.AddComponent<Navigation>(ship);
+            return ship;
         }
     }
 }

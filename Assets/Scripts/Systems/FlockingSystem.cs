@@ -1,12 +1,10 @@
-using System;
 using Components;
-using ExtensionMethods;
+using Components.Tags;
+using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Systems
 {
@@ -32,7 +30,8 @@ namespace Systems
             flockingJob.ScheduleParallel(state.Dependency).Complete();
         }
     }
-
+    
+    [WithAll(typeof(AllFlockingTag))]
     [BurstCompile]
     public partial struct FlockingJob : IJobEntity
     {
@@ -42,44 +41,7 @@ namespace Systems
 
         public void Execute(in LocalTransform transform, ref Navigation navigation)
         {
-            float2 myPosition = transform.Position.xz;
-
-            var nearbyCount = 1;
-            var cohesion = new float2();
-            var alignment = new float2();
-            var separation = new float2();
-
-            foreach (LocalTransform other in Transforms)
-            {
-                float2 otherPosition = other.Position.xz;
-                float2 offset = otherPosition - myPosition;
-                float squareDistance = math.lengthsq(offset);
-                if (squareDistance is > MaxDistance or 0f or float.NaN) continue;
-
-                nearbyCount++;
-                cohesion += offset;
-                alignment += other.Forward().xz;
-
-                // gør det samme med cohesion og alignment, så skiber som er tæt på vægter højere
-                separation -= offset * (1.0f / squareDistance - 1.0f / MaxDistance);
-            }
-
-            float inverseNearbyCount = 1f / nearbyCount;
-            cohesion *= inverseNearbyCount;
-            alignment *= inverseNearbyCount;
-
-            // make config file for this
-            const float alignmentStrength = 7f;
-            const float cohesionStrength = .8f;
-            const float separationStrength = 50f;
-
-            float2 target = alignment * alignmentStrength + 
-                            cohesion * cohesionStrength +
-                            separation * separationStrength;
-
-            navigation.DesiredDirection = target.x0z();
-            var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
-            navigation.DesiredMoveSpeed = magnitudeSquared;
+            Flocker.Flock(ref navigation, transform, Transforms, MaxDistance);
         }
     }
 }
