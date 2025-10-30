@@ -1,5 +1,6 @@
 using Components;
 using Components.Tags;
+using Model;
 using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
@@ -12,20 +13,25 @@ namespace Systems
     public partial struct FlockingSystem : ISystem
     {
         private EntityQuery _query;
+        private FlockingConfigurationSingleton FlockingConfigurationSingleton { get; set; }
 
         public void OnCreate(ref SystemState state)
         {
             _query = new EntityQueryBuilder(Allocator.Persistent)
                 .WithAll<LocalTransform, Navigation>()
                 .Build(ref state);
+            
+            state.RequireForUpdate<FlockingConfigurationSingleton>();
         }
 
         public void OnUpdate(ref SystemState state)
         {
+            FlockingConfigurationSingleton = SystemAPI.GetSingleton<FlockingConfigurationSingleton>();
             using var transforms = _query.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
             var flockingJob = new FlockingJob
             {
                 Transforms = transforms,
+                FlockingConfiguration = FlockingConfigurationSingleton.FlockingConfiguration,
             };
             flockingJob.ScheduleParallel(state.Dependency).Complete();
         }
@@ -36,12 +42,14 @@ namespace Systems
     public partial struct FlockingJob : IJobEntity
     {
         [ReadOnly] public NativeArray<LocalTransform> Transforms;
+        public FlockingConfiguration FlockingConfiguration;
+        
         // make configurable
         private const float MaxDistance = 500f;
 
-        public void Execute(in LocalTransform transform, ref Navigation navigation)
+        private void Execute(in LocalTransform transform, ref Navigation navigation)
         {
-            Flocker.Flock(ref navigation, transform, Transforms, MaxDistance);
+            Flocker.Flock(ref navigation, transform, Transforms, FlockingConfiguration, MaxDistance);
         }
     }
 }

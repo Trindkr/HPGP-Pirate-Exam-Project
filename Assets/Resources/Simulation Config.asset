@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Simulation Config
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
   NumberOfPirateShips: 100
-  NumberOfMerchantShips: 15
+  NumberOfMerchantShips: 100
   NumberOfMerchantFleets: 5
   NumberOfPirateFleets: 5
   SailingConstraints:
@@ -24,3 +24,7 @@ MonoBehaviour:
   CannonConstraints:
     ReloadTime: 5
     ShootingForce: 30
+  FlockingConfiguration:
+    CohesionStrength: 1
+    AlignmentStrength: 10
+    SeparationStrength: 20
