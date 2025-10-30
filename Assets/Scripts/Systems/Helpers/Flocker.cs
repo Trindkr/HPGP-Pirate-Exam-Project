@@ -12,6 +12,7 @@ namespace Systems.Helpers
     [BurstCompile]
     public static class Flocker
     {
+        [BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Flock(
             ref Navigation navigation,
@@ -31,7 +32,7 @@ namespace Systems.Helpers
                 float2 otherPosition = other.Position.xz;
                 float2 offset = otherPosition - myPosition;
                 float squareDistance = math.lengthsq(offset);
-                if (squareDistance == 0f) 
+                if (squareDistance == 0f)
                     continue;
 
                 nearbyCount++;
@@ -51,13 +52,38 @@ namespace Systems.Helpers
             float cohesionStrength = flockingConfiguration.CohesionStrength;
             float separationStrength = flockingConfiguration.SeparationStrength;
 
-            float2 target = alignment * alignmentStrength + 
+            float2 target = alignment * alignmentStrength +
                             cohesion * cohesionStrength +
                             separation * separationStrength;
 
             navigation.DesiredDirection = target.x0z();
             var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
             navigation.DesiredMoveSpeed = magnitudeSquared;
+        }
+
+        [BurstCompile]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Flock(ref Components.Fleet.Fleet fleet, in NativeArray<LocalTransform> fleetTransforms,
+            in FlockingConfiguration flockingConfiguration)
+        {
+            var center = new float2();
+            var alignment = new float2();
+            
+            foreach (LocalTransform transform in fleetTransforms)
+            {
+                center += transform.Position.xz;
+                alignment += transform.Forward().xz;
+            }
+            
+            float inverseCount = 1f / fleetTransforms.Length;
+            
+            center *= inverseCount;
+            center *= flockingConfiguration.CohesionStrength;
+            fleet.Center = center;
+            
+            alignment *= inverseCount;
+            alignment *= flockingConfiguration.AlignmentStrength;
+            fleet.Alignment = alignment;
         }
     }
 }

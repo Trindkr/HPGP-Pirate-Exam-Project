@@ -33,17 +33,17 @@ namespace Systems
 
                 if (collisionWorld.CastRay(raycast, out RaycastHit closestHit))
                 {
-                    Debug.DrawLine(
-                        localTransform.ValueRO.Position, 
-                        closestHit.Position, 
-                        Color.green);
+                    // Debug.DrawLine(
+                    //     localTransform.ValueRO.Position, 
+                    //     closestHit.Position, 
+                    //     Color.green);
                 }
                 else
                 {
-                    Debug.DrawLine(
-                        localTransform.ValueRO.Position, 
-                        localTransform.ValueRO.Position + forward * viewDistance,
-                        Color.yellow);
+                    // Debug.DrawLine(
+                    //     localTransform.ValueRO.Position, 
+                    //     localTransform.ValueRO.Position + forward * viewDistance,
+                    //     Color.yellow);
                 }
             }
         }
