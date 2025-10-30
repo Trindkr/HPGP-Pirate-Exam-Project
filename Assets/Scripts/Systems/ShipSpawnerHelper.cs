@@ -11,23 +11,6 @@ namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, Model.CannonConstraintsConfig cannonConstraintsConfig,
-            int numberOfShips, uint2 startingOffset)
-        {
-            var xAmount = (uint)math.round(math.sqrt(numberOfShips));
-            var zAmount = xAmount;
-            for (uint z = 0; z < zAmount; z++)
-            {
-                for (uint x = 0; x < xAmount; x++)
-                {
-                    var position = new float3(x * 10 + x * z / 3f + startingOffset.x, 0,
-                        z * 10 + z * x / 2f + startingOffset.y);
-                    var ship = AddDefaultShipComponents(ref ecb, shipPrefab, sailingConstraints, cannonballPrefab, cannonConstraintsConfig,  position);
-                    ecb.AddComponent(ship, new AllFlockingTag());
-                }
-            }
-        }
-        
         public static Entity AddDefaultShipComponents(ref EntityCommandBuffer ecb,
             Entity prefab,
             SailingConstraints sailingConstraints,

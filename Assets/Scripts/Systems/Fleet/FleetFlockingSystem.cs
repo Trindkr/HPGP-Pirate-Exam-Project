@@ -1,5 +1,6 @@
 using Components;
 using Components.Fleet;
+using Model;
 using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
@@ -11,12 +12,19 @@ namespace Systems.Fleet
     [BurstCompile, UpdateBefore(typeof(TurnSystem))]
     public partial struct FleetFlockingSystem : ISystem
     {
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<FlockingConfigurationSingleton>();
+        }
+
         public void OnUpdate(ref SystemState state)
         {
+            var flockingConfiguration = SystemAPI.GetSingleton<FlockingConfigurationSingleton>().FlockingConfiguration;
             FleetFlockingJob job = new FleetFlockingJob
             {
                 FleetShipBufferLookup = SystemAPI.GetBufferLookup<FleetShipBuffer>(true),
-                LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true)
+                LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
+                FlockingConfiguration = flockingConfiguration,
             };
             state.Dependency = job.ScheduleParallel(state.Dependency);
         }
@@ -27,6 +35,7 @@ namespace Systems.Fleet
     {
         [ReadOnly] public BufferLookup<FleetShipBuffer> FleetShipBufferLookup;
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
+        public FlockingConfiguration FlockingConfiguration;
         
         private void Execute(Entity entity, ref Navigation navigation, FleetMember fleetMember)
         {
@@ -45,7 +54,11 @@ namespace Systems.Fleet
                     fleetTransforms[i] = LocalTransformLookup[shipEntity];
             }
 
-            Flocker.Flock(ref navigation, LocalTransformLookup[entity], fleetTransforms);
+            Flocker.Flock(
+                ref navigation, 
+                LocalTransformLookup[entity], 
+                fleetTransforms, 
+                FlockingConfiguration);
 
             fleetTransforms.Dispose();
         }

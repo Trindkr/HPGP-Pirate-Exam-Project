@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Components;
 using ExtensionMethods;
+using Model;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -13,10 +14,10 @@ namespace Systems.Helpers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Flock(
-            ref Navigation navigation, 
-            LocalTransform localTransform, 
-            NativeArray<LocalTransform> fleetMembers,
-            float maxDistance = float.PositiveInfinity)
+            ref Navigation navigation,
+            in LocalTransform localTransform,
+            in NativeArray<LocalTransform> fleetMembers,
+            in FlockingConfiguration flockingConfiguration)
         {
             float2 myPosition = localTransform.Position.xz;
 
@@ -30,7 +31,7 @@ namespace Systems.Helpers
                 float2 otherPosition = other.Position.xz;
                 float2 offset = otherPosition - myPosition;
                 float squareDistance = math.lengthsq(offset);
-                if (squareDistance > maxDistance || squareDistance == 0f) 
+                if (squareDistance == 0f) 
                     continue;
 
                 nearbyCount++;
@@ -38,7 +39,7 @@ namespace Systems.Helpers
                 alignment += other.Forward().xz;
 
                 // gør det samme med cohesion og alignment, så skibe som er tæt på vægter højere
-                separation -= offset * (1.0f / squareDistance - 1.0f / maxDistance);
+                separation -= offset * (1.0f / squareDistance);
             }
 
             float inverseNearbyCount = 1f / nearbyCount;
@@ -46,9 +47,9 @@ namespace Systems.Helpers
             alignment *= inverseNearbyCount;
 
             // make config file for this
-            const float alignmentStrength = 7f;
-            const float cohesionStrength = .8f;
-            const float separationStrength = 50f;
+            float alignmentStrength = flockingConfiguration.AlignmentStrength;
+            float cohesionStrength = flockingConfiguration.CohesionStrength;
+            float separationStrength = flockingConfiguration.SeparationStrength;
 
             float2 target = alignment * alignmentStrength + 
                             cohesion * cohesionStrength +

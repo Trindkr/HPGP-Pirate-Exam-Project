@@ -1,4 +1,5 @@
 using Components;
+using Systems.Fleet;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,7 +7,7 @@ using Unity.Transforms;
 
 namespace Systems
 {
-    [BurstCompile, UpdateAfter(typeof(FlockingSystem))]
+    [BurstCompile, UpdateAfter(typeof(FleetFlockingSystem))]
     public partial struct TradeRouteSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)

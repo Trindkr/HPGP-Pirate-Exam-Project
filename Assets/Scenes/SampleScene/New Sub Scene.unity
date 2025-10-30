@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &773470063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 773470065}
+  - component: {fileID: 773470064}
+  m_Layer: 0
+  m_Name: Fleet Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &773470064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 773470063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ccfb169fbdd4016ba81060e7aad7338, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Authoring.FleetSpawnerAuthoring
+  _simulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
+  _pirateShipPrefab: {fileID: 7623022811922074804, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
+  _merchantShipPrefab: {fileID: 5971831650151182331, guid: ec84e8e7445ebd042a92cc4df6470a3a, type: 3}
+  _CannonballPrefab: {fileID: 9046275581279054898, guid: 99737b1a413fb63488062d2dfec8b061, type: 3}
+--- !u!4 &773470065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 773470063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1078880336
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -198,7 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.FirstPersonShipAuthoring
   Prefab: {fileID: 4428867827300640566, guid: 1f813b9e93df81144a535e949654d03d, type: 3}
   SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
---- !u!1 &1470835491
+--- !u!1 &1364950074
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -206,84 +254,35 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1470835493}
-  - component: {fileID: 1470835492}
+  - component: {fileID: 1364950076}
+  - component: {fileID: 1364950075}
   m_Layer: 0
-  m_Name: Pirate Ship Spawner
+  m_Name: Flocking Configuration Singleton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1470835492
+--- !u!114 &1364950075
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1470835491}
+  m_GameObject: {fileID: 1364950074}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 479d147f5af02524f9c0a0de17c6e8f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 69b00d9fc17e4c52a5e299be423fe5da, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Authoring.PirateShipSpawnerAuthoring
-  ShipPrefab: {fileID: 7623022811922074804, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
-  CannonballPrefab: {fileID: 9046275581279054898, guid: 99737b1a413fb63488062d2dfec8b061, type: 3}
-  SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
---- !u!4 &1470835493
+  m_EditorClassIdentifier: Assembly-CSharp::Authoring.FlockingConfigurationAuthoring
+  _simulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
+--- !u!4 &1364950076
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1470835491}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1566640945
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1566640947}
-  - component: {fileID: 1566640946}
-  m_Layer: 0
-  m_Name: Merchant Ship Spawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1566640946
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1566640945}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e97e715fe0b6bb64cad4afe925cd62fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Authoring.TradeShipSpawnerAuthoring
-  ShipPrefab: {fileID: 5971831650151182331, guid: ec84e8e7445ebd042a92cc4df6470a3a, type: 3}
-  CannonballPrefab: {fileID: 9046275581279054898, guid: 99737b1a413fb63488062d2dfec8b061, type: 3}
-  SimulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
---- !u!4 &1566640947
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1566640945}
+  m_GameObject: {fileID: 1364950074}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -296,6 +295,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1470835493}
-  - {fileID: 1566640947}
   - {fileID: 1078880336}
+  - {fileID: 773470065}
+  - {fileID: 1364950076}
