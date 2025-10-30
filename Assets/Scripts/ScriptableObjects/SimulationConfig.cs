@@ -13,6 +13,6 @@ namespace ScriptableObjects
         [Min(1)]
         public int NumberOfPirateFleets;
         public SailingConstraints  SailingConstraints;
-        public Model.CannonConstraints   CannonConstraints;
+        public CannonConstraintsConfig   cannonConstraintsConfig;
     }
 }

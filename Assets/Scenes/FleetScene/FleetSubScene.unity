@@ -149,8 +149,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.FleetSpawnerAuthoring
   _simulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
-  _pirateShipPrefab: {fileID: 4428867827300640566, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
-  _merchantShipPrefab: {fileID: 4428867827300640566, guid: 7e40269605c6ae94f9bf6a3a345c177b, type: 3}
+  _pirateShipPrefab: {fileID: 7623022811922074804, guid: 59c198dcbdab9014eb28effe48333280, type: 3}
+  _merchantShipPrefab: {fileID: 5971831650151182331, guid: ec84e8e7445ebd042a92cc4df6470a3a, type: 3}
+  _CannonballPrefab: {fileID: 9046275581279054898, guid: 99737b1a413fb63488062d2dfec8b061, type: 3}
 --- !u!4 &2104713726
 Transform:
   m_ObjectHideFlags: 0

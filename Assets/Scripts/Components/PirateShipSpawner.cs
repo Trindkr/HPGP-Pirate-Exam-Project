@@ -9,6 +9,6 @@ namespace Components
         public Entity CannonballPrefab;
         public int NumberOfShips;
         public SailingConstraints  SailingConstraints;
-        public Model.CannonConstraints CannonConstraints;
+        public CannonConstraintsConfig CannonConstraintsConfig;
     }
 }

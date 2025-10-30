@@ -1,17 +1,17 @@
 using Components;
+using Components.Enum;
 using Components.Tags;
 using Model;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.PackageManager;
-using CannonConstraints = Components.CannonConstraints;
+using CannonConstraints = Components.Cannon.CannonConstraints;
 
 namespace Systems
 {
     public static class ShipSpawnerHelper
     {
-        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, Model.CannonConstraints cannonConstraints,
+        public static void SpawnBoats(ref EntityCommandBuffer ecb, Entity shipPrefab, SailingConstraints sailingConstraints, Entity cannonballPrefab, Model.CannonConstraintsConfig cannonConstraintsConfig,
             int numberOfShips, uint2 startingOffset)
         {
             var xAmount = (uint)math.round(math.sqrt(numberOfShips));
@@ -22,7 +22,7 @@ namespace Systems
                 {
                     var position = new float3(x * 10 + x * z / 3f + startingOffset.x, 0,
                         z * 10 + z * x / 2f + startingOffset.y);
-                    var ship = AddDefaultShipComponents(ref ecb, shipPrefab, sailingConstraints, cannonballPrefab, cannonConstraints,  position);
+                    var ship = AddDefaultShipComponents(ref ecb, shipPrefab, sailingConstraints, cannonballPrefab, cannonConstraintsConfig,  position);
                     ecb.AddComponent(ship, new AllFlockingTag());
                 }
             }
@@ -32,7 +32,7 @@ namespace Systems
             Entity prefab,
             SailingConstraints sailingConstraints,
             Entity cannonBallPrefab,
-            Model.CannonConstraints cannonConstraints,
+            Model.CannonConstraintsConfig cannonConstraintsConfig,
             float3 position)
         {
             var ship = ecb.Instantiate(prefab);
@@ -53,14 +53,8 @@ namespace Systems
             });
 
             ecb.AddComponent<Navigation>(ship);
-
-            ecb.AddComponent(ship, new CannonConstraints
-            {
-                ReloadTime = cannonConstraints.ReloadTime,
-                ShootingForce = cannonConstraints.ShootingForce,
-                ReloadTimer = UnityEngine.Random.Range(1f, cannonConstraints.ReloadTime),
-                FireLeft = true
-            });
+            
+            ecb.AddComponent(ship, CreateCannonConstraintsComponent(cannonConstraintsConfig));
 
             ecb.AddComponent(ship, new CannonballPrefab
             {
@@ -68,6 +62,25 @@ namespace Systems
             });
 
             return ship;
+        }
+
+        private static CannonConstraints  CreateCannonConstraintsComponent(CannonConstraintsConfig cannonConstraintsConfig)
+        {
+            var shootingForce = UnityEngine.Random.Range(cannonConstraintsConfig.MinShootingForce, cannonConstraintsConfig.MaxShootingForce);
+            var shootingAngle = UnityEngine.Random.Range(cannonConstraintsConfig.MinShootingAngle, cannonConstraintsConfig.MaxShootingAngle);
+            const float gravity = 9.81f;
+
+            var shootingRange = (shootingForce * shootingForce * math.sin(2f * math.radians(shootingAngle))) / gravity;
+
+            return new CannonConstraints
+            {
+                ReloadTime = cannonConstraintsConfig.ReloadTime,
+                ShootingAngle = shootingAngle,
+                ShootingForce = shootingForce,
+                ShootingRange = shootingRange,
+                ReloadTimer = UnityEngine.Random.Range(1f, cannonConstraintsConfig.ReloadTime),
+                ShootingDirection = ShootingDirection.None
+            };
         }
     }
 }

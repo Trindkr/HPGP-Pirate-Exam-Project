@@ -33,7 +33,7 @@ namespace Systems
                     spawner.ValueRO.ShipPrefab,
                     spawner.ValueRO.SailingConstraints, 
                     spawner.ValueRO.CannonballPrefab,
-                    spawner.ValueRO.CannonConstraints,
+                    spawner.ValueRO.CannonConstraintsConfig,
                     spawner.ValueRO.NumberOfShips, 
                     new uint2(0, 0));
             }

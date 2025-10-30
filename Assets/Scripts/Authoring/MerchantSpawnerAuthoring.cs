@@ -23,7 +23,7 @@ namespace Authoring
                     CannonballPrefab = GetEntity(authoring.CannonballPrefab, TransformUsageFlags.Dynamic),
                     NumberOfShips = authoring.SimulationConfig.NumberOfPirateShips,
                     SailingConstraints = authoring.SimulationConfig.SailingConstraints,
-                    CannonConstraints = authoring.SimulationConfig.CannonConstraints
+                    CannonConstraintsConfig = authoring.SimulationConfig.cannonConstraintsConfig
                 });
             }
         }

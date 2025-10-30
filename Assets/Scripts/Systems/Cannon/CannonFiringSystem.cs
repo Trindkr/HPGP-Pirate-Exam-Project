@@ -1,10 +1,11 @@
-using Components;
+using Components.Cannon;
+using Components.Enum;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-namespace Systems
+namespace Systems.Cannon
 {
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -47,22 +48,28 @@ namespace Systems
                 in CannonballPrefab cannonballPrefab)
             {
                 cannonConstraints.ReloadTimer -= DeltaTime;
-
                 if (cannonConstraints.ReloadTimer > 0f)
                     return;
 
                 cannonConstraints.ReloadTimer = cannonConstraints.ReloadTime;
 
+                if (cannonConstraints.ShootingDirection == ShootingDirection.None)
+                    return;
+
                 var cannonball = EntityCommandBuffer.Instantiate(chunkIndex, cannonballPrefab.Prefab);
 
                 var right = math.normalize(math.cross(shipTransform.Up, shipTransform.Forward));
-                var shootDir = cannonConstraints.FireLeft ? -right : right;
+                var shootDir = cannonConstraints.ShootingDirection switch
+                {
+                    ShootingDirection.Left => -right,
+                    ShootingDirection.Right => right,
+                    _ => float3.zero
+                };
 
-                cannonConstraints.FireLeft = !cannonConstraints.FireLeft;
-
-                const float upwardAngleDegrees = 30f;
                 var rotationAxis = math.cross(shootDir, shipTransform.Up);
-                shootDir = math.normalize(math.rotate(quaternion.AxisAngle(rotationAxis, math.radians(upwardAngleDegrees)), shootDir));
+                shootDir = math.normalize(math.rotate(
+                    quaternion.AxisAngle(rotationAxis, math.radians(cannonConstraints.ShootingAngle)),
+                    shootDir));
 
                 var spawnPosition = shipTransform.Position + shootDir * 1.5f;
 
@@ -72,7 +79,7 @@ namespace Systems
                     Rotation = quaternion.LookRotationSafe(shootDir, shipTransform.Up),
                     Scale = 1f
                 });
-                
+
                 EntityCommandBuffer.SetComponent(chunkIndex, cannonball, new Unity.Physics.PhysicsVelocity
                 {
                     Linear = shootDir * cannonConstraints.ShootingForce,
