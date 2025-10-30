@@ -42,23 +42,23 @@ namespace Systems
             
             public void Execute(
                 [ChunkIndexInQuery] int chunkIndex,
-                RefRW<CannonConstraints> cannonConstraints,
+                ref CannonConstraints cannonConstraints,
                 in LocalToWorld shipTransform,
                 in CannonballPrefab cannonballPrefab)
             {
-                cannonConstraints.ValueRW.ReloadTimer -= DeltaTime;
+                cannonConstraints.ReloadTimer -= DeltaTime;
 
-                if (cannonConstraints.ValueRW.ReloadTimer > 0f)
+                if (cannonConstraints.ReloadTimer > 0f)
                     return;
 
-                cannonConstraints.ValueRW.ReloadTimer = cannonConstraints.ValueRO.ReloadTime;
+                cannonConstraints.ReloadTimer = cannonConstraints.ReloadTime;
 
                 var cannonball = EntityCommandBuffer.Instantiate(chunkIndex, cannonballPrefab.Prefab);
 
                 var right = math.normalize(math.cross(shipTransform.Up, shipTransform.Forward));
-                var shootDir = cannonConstraints.ValueRO.FireLeft ? -right : right;
+                var shootDir = cannonConstraints.FireLeft ? -right : right;
 
-                cannonConstraints.ValueRW.FireLeft = !cannonConstraints.ValueRO.FireLeft;
+                cannonConstraints.FireLeft = !cannonConstraints.FireLeft;
 
                 const float upwardAngleDegrees = 30f;
                 var rotationAxis = math.cross(shootDir, shipTransform.Up);
@@ -72,10 +72,10 @@ namespace Systems
                     Rotation = quaternion.LookRotationSafe(shootDir, shipTransform.Up),
                     Scale = 1f
                 });
-
+                
                 EntityCommandBuffer.SetComponent(chunkIndex, cannonball, new Unity.Physics.PhysicsVelocity
                 {
-                    Linear = shootDir * cannonConstraints.ValueRO.ShootingForce,
+                    Linear = shootDir * cannonConstraints.ShootingForce,
                     Angular = float3.zero
                 });
             }
