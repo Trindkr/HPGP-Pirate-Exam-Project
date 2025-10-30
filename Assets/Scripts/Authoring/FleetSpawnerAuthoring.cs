@@ -1,4 +1,5 @@
 using Components.Fleet;
+using Model;
 using ScriptableObjects;
 using Unity.Entities;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Authoring
         [SerializeField] private SimulationConfig _simulationConfig;
         [SerializeField] private GameObject _pirateShipPrefab;
         [SerializeField] private GameObject _merchantShipPrefab;
+        [SerializeField] private GameObject _CannonballPrefab;
         
         
         private class FleetSpawnerBaker : Baker<FleetSpawnerAuthoring>
@@ -32,6 +34,8 @@ namespace Authoring
                     PirateShipPrefab = GetEntity(authoring._pirateShipPrefab, TransformUsageFlags.Dynamic),
                     MerchantShipPrefab = GetEntity(authoring._merchantShipPrefab, TransformUsageFlags.Dynamic),
                     SailingConstraints = authoring._simulationConfig.SailingConstraints,
+                    CannonConstraints = authoring._simulationConfig.CannonConstraints,
+                    CannonballPrefab = GetEntity(authoring._CannonballPrefab, TransformUsageFlags.Dynamic)
                 });
             }
         }

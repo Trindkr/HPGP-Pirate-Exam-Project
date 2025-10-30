@@ -13,5 +13,8 @@ namespace Components.Fleet
         public Entity PirateShipPrefab;
         public Entity MerchantShipPrefab;
         public SailingConstraints SailingConstraints;
+        
+        public Entity CannonballPrefab;
+        public Model.CannonConstraints CannonConstraints;
     }
 }

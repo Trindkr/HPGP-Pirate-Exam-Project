@@ -22,7 +22,7 @@ namespace Systems
                 {
                     var position = new float3(x * 10 + x * z / 3f + startingOffset.x, 0,
                         z * 10 + z * x / 2f + startingOffset.y);
-                    var ship = AddDefaultShipComponents(ref ecb, prefab, sailingConstraints, position);
+                    var ship = AddDefaultShipComponents(ref ecb, shipPrefab, sailingConstraints, cannonballPrefab, cannonConstraints,  position);
                     ecb.AddComponent(ship, new AllFlockingTag());
                 }
             }
@@ -31,6 +31,8 @@ namespace Systems
         public static Entity AddDefaultShipComponents(ref EntityCommandBuffer ecb,
             Entity prefab,
             SailingConstraints sailingConstraints,
+            Entity cannonBallPrefab,
+            Model.CannonConstraints cannonConstraints,
             float3 position)
         {
             var ship = ecb.Instantiate(prefab);
@@ -62,7 +64,7 @@ namespace Systems
 
             ecb.AddComponent(ship, new CannonballPrefab
             {
-                Prefab = cannonBallPrefab
+                Prefab = cannonBallPrefab,
             });
 
             return ship;
