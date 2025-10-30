@@ -1,5 +1,8 @@
+using Components.Cannon;
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Physics;
+using Unity.Transforms;
 
 namespace Systems.Cannon
 {
@@ -18,10 +21,16 @@ namespace Systems.Cannon
         }
 
 
-        // [BurstCompile]
-        // public partial struct FindShootingRange : IJobEntity
-        // {
-        //     
-        // }
+        [BurstCompile]
+        public partial struct FindShootingRange : IJobEntity
+        {
+            void Execute(ref CannonConstraints cannonConstraints, ref LocalToWorld shipTransform )
+            {
+                var raycastStart = shipTransform.Position;
+                var raycastEnd = raycastStart + shipTransform.Forward * cannonConstraints.ShootingRange;
+                
+               
+            }
+        }
     }
 }

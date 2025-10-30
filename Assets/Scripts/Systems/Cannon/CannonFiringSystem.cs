@@ -44,7 +44,7 @@ namespace Systems.Cannon
             public void Execute(
                 [ChunkIndexInQuery] int chunkIndex,
                 ref CannonConstraints cannonConstraints,
-                in LocalToWorld shipTransform,
+                ref LocalToWorld shipTransform,
                 in CannonballPrefab cannonballPrefab)
             {
                 cannonConstraints.ReloadTimer -= DeltaTime;
