@@ -1,15 +1,17 @@
+using System.Runtime.CompilerServices;
 using Components;
+using ExtensionMethods;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Systems.Helpers
 {
     [BurstCompile]
     public static class Flocker
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Flock(
             ref Navigation navigation, 
             LocalTransform localTransform, 
@@ -52,7 +54,7 @@ namespace Systems.Helpers
                             cohesion * cohesionStrength +
                             separation * separationStrength;
 
-            navigation.DesiredDirection = new float3(target.x, 0, target.y);
+            navigation.DesiredDirection = target.x0z();
             var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
             navigation.DesiredMoveSpeed = magnitudeSquared;
         }
