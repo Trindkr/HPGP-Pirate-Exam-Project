@@ -17,8 +17,7 @@ namespace Systems.Helpers
             ref Navigation navigation,
             in LocalTransform localTransform,
             in NativeArray<LocalTransform> fleetMembers,
-            in FlockingConfiguration flockingConfiguration,
-            float maxDistance = float.PositiveInfinity)
+            in FlockingConfiguration flockingConfiguration)
         {
             float2 myPosition = localTransform.Position.xz;
 
@@ -32,7 +31,7 @@ namespace Systems.Helpers
                 float2 otherPosition = other.Position.xz;
                 float2 offset = otherPosition - myPosition;
                 float squareDistance = math.lengthsq(offset);
-                if (squareDistance > maxDistance || squareDistance == 0f) 
+                if (squareDistance == 0f) 
                     continue;
 
                 nearbyCount++;
@@ -40,7 +39,7 @@ namespace Systems.Helpers
                 alignment += other.Forward().xz;
 
                 // gør det samme med cohesion og alignment, så skibe som er tæt på vægter højere
-                separation -= offset * (1.0f / squareDistance - 1.0f / maxDistance);
+                separation -= offset * (1.0f / squareDistance);
             }
 
             float inverseNearbyCount = 1f / nearbyCount;
