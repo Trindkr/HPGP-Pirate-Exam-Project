@@ -34,7 +34,7 @@ namespace Authoring
                     PirateShipPrefab = GetEntity(authoring._pirateShipPrefab, TransformUsageFlags.Dynamic),
                     MerchantShipPrefab = GetEntity(authoring._merchantShipPrefab, TransformUsageFlags.Dynamic),
                     SailingConstraints = authoring._simulationConfig.SailingConstraints,
-                    CannonConstraintsConfig = authoring._simulationConfig.cannonConstraintsConfig,
+                    CannonConstraintsConfig = authoring._simulationConfig.CannonConstraintsConfig,
                     CannonballPrefab = GetEntity(authoring._CannonballPrefab, TransformUsageFlags.Dynamic)
                 });
             }
