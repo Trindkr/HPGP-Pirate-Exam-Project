@@ -79,7 +79,7 @@ namespace Systems
                 ShootingForce = shootingForce,
                 ShootingRange = shootingRange,
                 ReloadTimer = UnityEngine.Random.Range(1f, cannonConstraintsConfig.ReloadTime),
-                ShootingDirection = ShootingDirection.None
+                ShootingDirection = ShootingDirection.Left
             };
         }
     }

@@ -20,7 +20,7 @@ namespace Systems.Cannon
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            float deltaTime = SystemAPI.Time.DeltaTime;
+            var deltaTime = SystemAPI.Time.DeltaTime;
 
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
@@ -50,8 +50,6 @@ namespace Systems.Cannon
                 cannonConstraints.ReloadTimer -= DeltaTime;
                 if (cannonConstraints.ReloadTimer > 0f)
                     return;
-
-                cannonConstraints.ReloadTimer = cannonConstraints.ReloadTime;
 
                 if (cannonConstraints.ShootingDirection == ShootingDirection.None)
                     return;
@@ -85,6 +83,8 @@ namespace Systems.Cannon
                     Linear = shootDir * cannonConstraints.ShootingForce,
                     Angular = float3.zero
                 });
+                
+                cannonConstraints.ReloadTimer = cannonConstraints.ReloadTime;
             }
 
         }

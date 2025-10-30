@@ -17,10 +17,11 @@ namespace Systems.Cannon
         
         }
 
-        [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-        
-        }
+
+        // [BurstCompile]
+        // public partial struct FindShootingRange : IJobEntity
+        // {
+        //     
+        // }
     }
 }
