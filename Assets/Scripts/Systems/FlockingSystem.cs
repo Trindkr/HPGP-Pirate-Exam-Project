@@ -1,5 +1,6 @@
 using Components;
 using Components.Tags;
+using Model;
 using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
@@ -30,7 +31,7 @@ namespace Systems
             var flockingJob = new FlockingJob
             {
                 Transforms = transforms,
-                FlockingConfigurationSingleton = FlockingConfigurationSingleton,
+                FlockingConfiguration = FlockingConfigurationSingleton.FlockingConfiguration,
             };
             flockingJob.ScheduleParallel(state.Dependency).Complete();
         }
@@ -41,14 +42,14 @@ namespace Systems
     public partial struct FlockingJob : IJobEntity
     {
         [ReadOnly] public NativeArray<LocalTransform> Transforms;
-        public FlockingConfigurationSingleton FlockingConfigurationSingleton;
+        public FlockingConfiguration FlockingConfiguration;
         
         // make configurable
         private const float MaxDistance = 500f;
 
         private void Execute(in LocalTransform transform, ref Navigation navigation)
         {
-            Flocker.Flock(ref navigation, transform, Transforms, FlockingConfigurationSingleton.FlockingConfiguration, MaxDistance);
+            Flocker.Flock(ref navigation, transform, Transforms, FlockingConfiguration, MaxDistance);
         }
     }
 }

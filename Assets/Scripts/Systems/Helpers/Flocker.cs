@@ -13,10 +13,11 @@ namespace Systems.Helpers
     public static class Flocker
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Flock(ref Navigation navigation,
-            LocalTransform localTransform,
-            NativeArray<LocalTransform> fleetMembers,
-            FlockingConfiguration flockingConfiguration,
+        public static void Flock(
+            ref Navigation navigation,
+            in LocalTransform localTransform,
+            in NativeArray<LocalTransform> fleetMembers,
+            in FlockingConfiguration flockingConfiguration,
             float maxDistance = float.PositiveInfinity)
         {
             float2 myPosition = localTransform.Position.xz;

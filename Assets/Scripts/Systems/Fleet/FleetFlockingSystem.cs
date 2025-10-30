@@ -1,5 +1,6 @@
 using Components;
 using Components.Fleet;
+using Model;
 using Systems.Helpers;
 using Unity.Burst;
 using Unity.Collections;
@@ -11,8 +12,6 @@ namespace Systems.Fleet
     [BurstCompile, UpdateBefore(typeof(TurnSystem))]
     public partial struct FleetFlockingSystem : ISystem
     {
-        private FlockingConfigurationSingleton FlockingConfigurationSingleton { get; set; }
-
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<FlockingConfigurationSingleton>();
@@ -20,12 +19,12 @@ namespace Systems.Fleet
 
         public void OnUpdate(ref SystemState state)
         {
-            FlockingConfigurationSingleton = SystemAPI.GetSingleton<FlockingConfigurationSingleton>();
+            var flockingConfiguration = SystemAPI.GetSingleton<FlockingConfigurationSingleton>().FlockingConfiguration;
             FleetFlockingJob job = new FleetFlockingJob
             {
                 FleetShipBufferLookup = SystemAPI.GetBufferLookup<FleetShipBuffer>(true),
                 LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
-                FlockingConfigurationSingleton = FlockingConfigurationSingleton,
+                FlockingConfiguration = flockingConfiguration,
             };
             state.Dependency = job.ScheduleParallel(state.Dependency);
         }
@@ -36,7 +35,7 @@ namespace Systems.Fleet
     {
         [ReadOnly] public BufferLookup<FleetShipBuffer> FleetShipBufferLookup;
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
-        public FlockingConfigurationSingleton FlockingConfigurationSingleton;
+        public FlockingConfiguration FlockingConfiguration;
         
         private void Execute(Entity entity, ref Navigation navigation, FleetMember fleetMember)
         {
@@ -59,7 +58,7 @@ namespace Systems.Fleet
                 ref navigation, 
                 LocalTransformLookup[entity], 
                 fleetTransforms, 
-                FlockingConfigurationSingleton.FlockingConfiguration);
+                FlockingConfiguration);
 
             fleetTransforms.Dispose();
         }
