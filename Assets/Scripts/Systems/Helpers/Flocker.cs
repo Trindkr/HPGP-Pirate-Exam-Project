@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Components;
 using ExtensionMethods;
+using Model;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -12,10 +13,10 @@ namespace Systems.Helpers
     public static class Flocker
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Flock(
-            ref Navigation navigation, 
-            LocalTransform localTransform, 
+        public static void Flock(ref Navigation navigation,
+            LocalTransform localTransform,
             NativeArray<LocalTransform> fleetMembers,
+            FlockingConfiguration flockingConfiguration,
             float maxDistance = float.PositiveInfinity)
         {
             float2 myPosition = localTransform.Position.xz;
@@ -46,9 +47,9 @@ namespace Systems.Helpers
             alignment *= inverseNearbyCount;
 
             // make config file for this
-            const float alignmentStrength = 7f;
-            const float cohesionStrength = .8f;
-            const float separationStrength = 50f;
+            float alignmentStrength = flockingConfiguration.AlignmentStrength;
+            float cohesionStrength = flockingConfiguration.CohesionStrength;
+            float separationStrength = flockingConfiguration.SeparationStrength;
 
             float2 target = alignment * alignmentStrength + 
                             cohesion * cohesionStrength +
