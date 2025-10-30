@@ -6,7 +6,7 @@ using Unity.Mathematics;
 namespace Systems
 {
     [BurstCompile]
-    public partial struct TradeShipSpawnerSystem : ISystem, ISystemStartStop
+    public partial struct MerchantSpawnerSystem : ISystem, ISystemStartStop
     {
         public void OnCreate(ref SystemState state)
         {
@@ -26,7 +26,7 @@ namespace Systems
 
         private void SpawnBoats(ref SystemState state, ref EntityCommandBuffer ecb)
         {
-            foreach (var spawner in SystemAPI.Query<RefRO<TradeShipSpawner>>())
+            foreach (var spawner in SystemAPI.Query<RefRO<MerchantSpawner>>())
             {
                 ShipSpawnerHelper.SpawnBoats(
                     ref ecb, 
