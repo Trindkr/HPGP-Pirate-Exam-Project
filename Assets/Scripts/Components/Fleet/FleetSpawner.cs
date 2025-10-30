@@ -15,6 +15,6 @@ namespace Components.Fleet
         public SailingConstraints SailingConstraints;
         
         public Entity CannonballPrefab;
-        public CannonConstraintsConfig CannonConstraintsConfig;
+        public CannonConfiguration CannonConfiguration;
     }
 }

@@ -29,7 +29,7 @@ namespace Systems.Fleet
                         spawner.ValueRO.PirateShipsPerFleet, 
                         spawner.ValueRO.PirateShipPrefab, 
                         spawner.ValueRO.SailingConstraints,
-                        spawner.ValueRO.CannonConstraintsConfig,
+                        spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
                         offset);
                 }
@@ -42,7 +42,7 @@ namespace Systems.Fleet
                         spawner.ValueRO.MerchantShipsPerFleet, 
                         spawner.ValueRO.MerchantShipPrefab, 
                         spawner.ValueRO.SailingConstraints,
-                        spawner.ValueRO.CannonConstraintsConfig,
+                        spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
                         offset);
                 }
@@ -62,7 +62,7 @@ namespace Systems.Fleet
             int fleetSize, 
             Entity shipPrefab, 
             SailingConstraints sailingConstraints,
-            Model.CannonConstraintsConfig cannonConstraintsConfig,
+            Model.CannonConfiguration cannonConfiguration,
             Entity cannonballPrefab,
             float2 offset) 
         {
@@ -85,7 +85,7 @@ namespace Systems.Fleet
                         shipPrefab,
                         sailingConstraints,
                         cannonballPrefab,
-                        cannonConstraintsConfig,
+                        cannonConfiguration,
                         position);
                     ecb.AddComponent(shipEntity, new FleetMember
                     {

@@ -3,7 +3,7 @@ using System;
 namespace Model
 {
     [Serializable]
-    public struct CannonConstraintsConfig
+    public struct CannonConfiguration
     {
         public float ReloadTime;
         public float MaxShootingForce;
