@@ -18,12 +18,6 @@ namespace Authoring
             public override void Bake(FirstPersonShipAuthoring authoring)
             {
                 var firstPersonShip = GetEntity(authoring, TransformUsageFlags.Dynamic);
-                AddComponent(firstPersonShip, new LocalTransform
-                {
-                    Position = authoring.transform.position,
-                    Rotation = quaternion.identity,
-                    Scale = 1f
-                });
                 
                 AddComponent(firstPersonShip, new AngularMotion
                 {
