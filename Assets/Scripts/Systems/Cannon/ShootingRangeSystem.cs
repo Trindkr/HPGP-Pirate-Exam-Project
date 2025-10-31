@@ -29,7 +29,12 @@ namespace Systems.Cannon
                 var raycastStart = shipTransform.Position;
                 var raycastEnd = raycastStart + shipTransform.Forward * cannonConstraints.ShootingRange;
                 
-               
+                var raycast = new RaycastInput
+                {
+                    //Start = localTransform.ValueRO.Position,
+                    //End = localTransform.ValueRO.Position + forward * viewDistance,
+                    //Filter = CollisionFilter.Default;
+                };
             }
         }
     }
