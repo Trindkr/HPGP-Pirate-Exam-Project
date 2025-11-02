@@ -11,7 +11,7 @@ using RaycastHit = Unity.Physics.RaycastHit;
 namespace Systems
 {
     [UpdateAfter(typeof(FleetFlockingJob)), UpdateBefore(typeof(TurnSystem))]
-    public partial struct ObstacleAvoidance : ISystem
+    public partial struct ObstacleAvoidanceSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
         {
@@ -21,7 +21,8 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             var collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-            float viewDistance = 20f;
+            float viewDistance = 10f;
+            float collisionSphereRadius = 5f;
 
             var fleetMemberLookup = SystemAPI.GetComponentLookup<FleetMember>();
             
@@ -42,21 +43,30 @@ namespace Systems
                 };
 
                 // Possibly make this a sphere cast for wider collision detection
-                if (collisionWorld.CastRay(raycast, out RaycastHit closestHit))
+                if (!collisionWorld.SphereCast(
+                        raycastStart, 
+                        collisionSphereRadius, 
+                        forward, 
+                        viewDistance, 
+                        out ColliderCastHit closestHit, 
+                        CollisionFilter.Default))
+                    continue;
+                
+                if (!fleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
+                    || otherFleetMember.FleetEntity != fleetMember.ValueRO.FleetEntity)
                 {
-                    if (!fleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
-                        || otherFleetMember.FleetEntity != fleetMember.ValueRO.FleetEntity)
-                    {
-                        var squaredDistanceToHit =
-                            math.distancesq(raycastStart, closestHit.Position);
-                        float3 normal = closestHit.SurfaceNormal;
-                        float3 avoidanceDirection = math.normalize(math.reflect(forward, normal));
-                        float avoidanceStrength = 100f;
-                        avoidanceDirection *= avoidanceStrength;
-                        Debug.DrawLine(raycastStart, raycastStart + avoidanceDirection, Color.green);
+                    var distanceToHit = math.distance(raycastStart, closestHit.Position);
+                    if (distanceToHit < 0.5f)
+                        continue;
+                    float normalizedDistance = math.saturate(1f - (distanceToHit / viewDistance));
+                    
+                    float3 normal = closestHit.SurfaceNormal;
+                    float3 avoidanceDirection = math.normalize(math.reflect(forward, normal));
+                    float avoidanceForce = 3f;
+                    avoidanceDirection *= normalizedDistance * avoidanceForce;
 
-                        navigation.ValueRW.DesiredDirection += avoidanceDirection;
-                    }
+                    navigation.ValueRW.DesiredDirection += avoidanceDirection;
+                    Debug.DrawLine(raycastStart, raycastStart + avoidanceDirection, Color.green);
                 }
             }
         }
