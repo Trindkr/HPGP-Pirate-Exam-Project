@@ -62,7 +62,7 @@ namespace Systems.Fleet
             int fleetSize, 
             Entity shipPrefab, 
             SailingConstraints sailingConstraints,
-            Model.CannonConstraints cannonConstraints,
+            CannonConstraints cannonConstraints,
             Entity cannonballPrefab,
             float2 offset) 
         {
