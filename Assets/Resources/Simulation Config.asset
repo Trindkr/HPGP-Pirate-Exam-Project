@@ -21,12 +21,12 @@ MonoBehaviour:
     MaxAngularSpeed: 1
     MaxLinearAcceleration: 0.5
     MaxLinearSpeed: 1
-  CannonConstraintsConfig:
+  CannonConfiguration:
     ReloadTime: 5
     MaxShootingForce: 20
     MinShootingForce: 10
-    MaxShootingAngle: 45
-    MinShootingAngle: 15
+    MaxShootingAngle: 40
+    MinShootingAngle: 25
   FlockingConfiguration:
     CohesionStrength: 1
     AlignmentStrength: 10
