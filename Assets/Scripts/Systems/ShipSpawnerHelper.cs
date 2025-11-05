@@ -36,6 +36,8 @@ namespace Systems
             });
 
             ecb.AddComponent<Navigation>(ship);
+
+            ecb.AddComponent<Ship>(ship);
             
             ecb.AddComponent(ship, CreateCannonConstraintsComponent(cannonConfiguration));
 

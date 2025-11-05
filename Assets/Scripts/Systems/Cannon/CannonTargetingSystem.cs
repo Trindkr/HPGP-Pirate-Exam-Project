@@ -12,19 +12,23 @@ using RaycastHit = Unity.Physics.RaycastHit;
 namespace Systems.Cannon
 {
     [BurstCompile]
-    public partial struct ShootingRangeSystem : ISystem
+    public partial struct CannonTargetingSystem : ISystem
     {
+        private uint _pirateLayerMask;
+        private uint _merchantLayerMask;
+
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<PhysicsWorldSingleton>();
-        }
 
+            // LayerMask.NameToLayer must be done outside Burst
+            _pirateLayerMask = 1u << LayerMask.NameToLayer("Pirate");
+            _merchantLayerMask = 1u << LayerMask.NameToLayer("Merchant");
+        }
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-
-            var pirateLayer = 1u << LayerMask.NameToLayer("Pirate");
-            var merchantLayer = 1u << LayerMask.NameToLayer("Merchant");
 
             var raycastYOffset = new float3(0, .5f, 0); 
 
@@ -36,7 +40,7 @@ namespace Systems.Cannon
                 float3 leftDirection = -rightDirection;
                 float range = cannonConstraints.ValueRO.ShootingRange;
 
-                uint targetMask = faction.ValueRO.Value == FactionType.Pirate ? merchantLayer : pirateLayer;
+                uint targetMask = faction.ValueRO.Value == FactionType.Pirate ? _merchantLayerMask : _pirateLayerMask;
 
                 var filter = new CollisionFilter
                 {
@@ -60,7 +64,7 @@ namespace Systems.Cannon
                     Debug.DrawLine(raycastStartPosition, hitRight.Position, Color.green);
                     continue;
                 }
-                Debug.DrawLine(raycastStartPosition, rightRayEnd, Color.red);
+               Debug.DrawLine(raycastStartPosition, rightRayEnd, Color.red);
 
                 // Left ray
                 var leftRayEnd = raycastStartPosition + leftDirection * range;
