@@ -12,21 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fc33ad5354f46149df5a4202f1aed7e, type: 3}
   m_Name: Simulation Config
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
-  NumberOfPirateShips: 100
-  NumberOfMerchantShips: 100
+  NumberOfPirateShips: 30
+  NumberOfMerchantShips: 30
   NumberOfMerchantFleets: 3
   NumberOfPirateFleets: 3
   SailingConstraints:
     MaxAngularAcceleration: 0.5
     MaxAngularSpeed: 1
-    MaxLinearAcceleration: 10
-    MaxLinearSpeed: 50
-  CannonConstraints:
-    ReloadTime: 5
+    MaxLinearAcceleration: 5
+    MaxLinearSpeed: 10
+  CannonConfiguration:
+    ReloadTime: 15
     MaxShootingForce: 20
-    MinShootingForce: 10
+    MinShootingForce: 15
     MaxShootingAngle: 40
-    MinShootingAngle: 25
+    MinShootingAngle: 20
   FlockingConfiguration:
     CohesionStrength: 1
     AlignmentStrength: 10
