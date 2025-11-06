@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [BurstCompile]
+    [BurstCompile, UpdateAfter(typeof(MoveSystem))]
     public partial struct NavigationDebugSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)

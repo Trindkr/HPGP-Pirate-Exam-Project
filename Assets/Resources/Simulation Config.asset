@@ -19,9 +19,9 @@ MonoBehaviour:
   SailingConstraints:
     MaxAngularAcceleration: 0.5
     MaxAngularSpeed: 1
-    MaxLinearAcceleration: 0.5
-    MaxLinearSpeed: 1
-  CannonConfiguration:
+    MaxLinearAcceleration: 10
+    MaxLinearSpeed: 50
+  CannonConstraints:
     ReloadTime: 5
     MaxShootingForce: 20
     MinShootingForce: 10
@@ -30,4 +30,4 @@ MonoBehaviour:
   FlockingConfiguration:
     CohesionStrength: 1
     AlignmentStrength: 10
-    SeparationStrength: 20
+    SeparationStrength: 50
