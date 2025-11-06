@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingJob))]
+    [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingSystem))]
     public partial struct ObstacleAvoidanceSystem : ISystem
     {
         public void OnCreate(ref SystemState state)

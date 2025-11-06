@@ -16,7 +16,6 @@ namespace Systems.Cannon
     {
         private uint _pirateLayerMask;
         private uint _merchantLayerMask;
-
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<PhysicsWorldSingleton>();
@@ -24,6 +23,7 @@ namespace Systems.Cannon
             // LayerMask.NameToLayer must be done outside Burst
             _pirateLayerMask = 1u << LayerMask.NameToLayer("Pirate");
             _merchantLayerMask = 1u << LayerMask.NameToLayer("Merchant");
+            
         }
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -41,7 +41,8 @@ namespace Systems.Cannon
                 float range = cannonConstraints.ValueRO.ShootingRange;
 
                 uint targetMask = faction.ValueRO.Value == FactionType.Pirate ? _merchantLayerMask : _pirateLayerMask;
-
+                float tolerence = cannonConstraints.ValueRO.ShootingRange * 0.8f;
+                
                 var filter = new CollisionFilter
                 {
                     BelongsTo = ~0u,
@@ -60,8 +61,17 @@ namespace Systems.Cannon
 
                 if (physicsWorld.CastRay(rightRay, out RaycastHit hitRight))
                 {
-                    cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Right;
-                    Debug.DrawLine(raycastStartPosition, hitRight.Position, Color.green);
+                    float hitDistance = math.distance(hitRight.Position, raycastStartPosition);
+                    if (hitDistance >= tolerence)
+                    {
+                        cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Right;
+                        Debug.DrawLine(raycastStartPosition, hitRight.Position, Color.green);
+                    }
+                    else
+                    {
+                        Debug.DrawLine(raycastStartPosition, rightRayEnd, Color.red);
+                    }
+                    
                     continue;
                 }
                Debug.DrawLine(raycastStartPosition, rightRayEnd, Color.red);
@@ -77,8 +87,18 @@ namespace Systems.Cannon
 
                 if (physicsWorld.CastRay(leftRay, out RaycastHit hitLeft))
                 {
-                    cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Left;
-                    Debug.DrawLine(raycastStartPosition, hitLeft.Position, Color.green);
+                    
+                    float hitDistance = math.distance(hitLeft.Position, raycastStartPosition);
+                    
+                    if (hitDistance >= tolerence)
+                    {
+                        cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Left;;
+                        Debug.DrawLine(raycastStartPosition, hitLeft.Position, Color.green);
+                    }
+                    else
+                    {
+                        Debug.DrawLine(raycastStartPosition, rightRayEnd, Color.red);
+                    }
                 }
                 else
                 {

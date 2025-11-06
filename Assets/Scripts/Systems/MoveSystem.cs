@@ -21,10 +21,11 @@ namespace Systems
     }
 
     [BurstCompile]
+    [WithNone(typeof(Sinking))] 
     public partial struct MoveJob : IJobEntity
     {
         public float DeltaTime;
-
+        
         public void Execute(ref LocalTransform transform, ref LinearMotion motion, ref Navigation navigation)
         {
             float dot = math.dot(navigation.DesiredDirection, transform.Forward());
@@ -35,5 +36,6 @@ namespace Systems
             transform.Position += transform.Forward() * motion.Speed * DeltaTime;
             // apply linear damping?
         }
+        
     }
 }

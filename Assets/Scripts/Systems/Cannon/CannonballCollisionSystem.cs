@@ -12,23 +12,22 @@ namespace Systems.Cannon
     {
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<PhysicsWorldSingleton>();
+            state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
             state.RequireForUpdate<SimulationSingleton>();
         }
 
         public void OnUpdate(ref SystemState state)
         {
             var simulation = SystemAPI.GetSingleton<SimulationSingleton>().AsSimulation();
-            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+            
 
             simulation.FinalJobHandle.Complete();
 
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecbSystem = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSystem.CreateCommandBuffer(state.WorldUnmanaged);
 
             foreach (var collisionEvent in simulation.CollisionEvents)
             {
-                //Debug.Log("Collision detected");
-
                 Entity entityA = collisionEvent.EntityA;
                 Entity entityB = collisionEvent.EntityB;
 
@@ -47,17 +46,12 @@ namespace Systems.Cannon
                     HandleHit(ref ecb, entityB, entityA);
                 }
             }
-
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
         }
 
         private void HandleHit(ref EntityCommandBuffer ecb, Entity cannonball, Entity ship)
         {
-            Debug.Log($"Cannonball {cannonball} hit Ship {ship}");
-
-            //ecb.AddComponent(ship, new Sinking());
-            //ecb.DestroyEntity(cannonball); //should cannonball be destroyed?
+            ecb.AddComponent(ship, new Sinking());
+            ecb.DestroyEntity(cannonball); //should cannonball be destroyed?
         }
     }
 }

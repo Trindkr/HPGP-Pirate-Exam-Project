@@ -1,5 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems
 {
@@ -8,7 +10,14 @@ namespace Systems
     {
         public void OnUpdate(ref SystemState state)
         {
-            //TODO add logic for what should happen when ship is sinking
+            foreach (var (localToWorld, entity) in
+                     SystemAPI.Query<RefRW<LocalToWorld>>()
+                         .WithAll<Sinking>()
+                         .WithEntityAccess())
+            {
+                Debug.Log($"Entity {entity} is sinking at position {localToWorld.ValueRW.Position}");
+            }
+
         }
     }
 }

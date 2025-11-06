@@ -69,7 +69,7 @@ namespace Systems.Cannon
                     quaternion.AxisAngle(rotationAxis, math.radians(cannonConstraints.ShootingAngle)),
                     shootDir));
 
-                var spawnPosition = shipTransform.Position + shootDir * 1.5f;
+                var spawnPosition = shipTransform.Position + (shootDir * 5f);
 
                 EntityCommandBuffer.SetComponent(chunkIndex, cannonball, new LocalTransform
                 {
