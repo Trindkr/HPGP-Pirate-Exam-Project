@@ -54,8 +54,6 @@ namespace Systems.Cannon
 
         private void HandleHit(ref EntityCommandBuffer ecb, Entity cannonball, Entity ship)
         {
-            Debug.Log($"Cannonball {cannonball} hit Ship {ship}");
-
             //ecb.AddComponent(ship, new Sinking());
             //ecb.DestroyEntity(cannonball); //should cannonball be destroyed?
         }

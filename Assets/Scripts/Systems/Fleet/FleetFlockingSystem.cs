@@ -22,61 +22,26 @@ namespace Systems.Fleet
         public void OnUpdate(ref SystemState state)
         {
             var flockingConfiguration = SystemAPI.GetSingleton<FlockingConfigurationSingleton>().FlockingConfiguration;
-            var fleetFlockingJob = new FleetFlockingJob2
+            var fleetFlockingJob = new FleetFlockingJob
             {
                 FleetShipBufferLookup = SystemAPI.GetBufferLookup<FleetShipBuffer>(true),
                 LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
-                FlockingConfiguration = flockingConfiguration,
             };
             state.Dependency = fleetFlockingJob.ScheduleParallel(state.Dependency);
 
             var flockingNavigationJob = new FlockingNavigationJob
             {
-                FleetLookup = SystemAPI.GetComponentLookup<Components.Fleet.Fleet>(true)
+                FleetLookup = SystemAPI.GetComponentLookup<Components.Fleet.Fleet>(true),
+                FlockingConfiguration = flockingConfiguration
             };
             state.Dependency = flockingNavigationJob.ScheduleParallel(state.Dependency);
         }
    }
 
-    [BurstCompile]
     public partial struct FleetFlockingJob : IJobEntity
     {
         [ReadOnly] public BufferLookup<FleetShipBuffer> FleetShipBufferLookup;
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
-        public FlockingConfiguration FlockingConfiguration;
-        
-        private void Execute(Entity entity, ref Navigation navigation, FleetMember fleetMember)
-        {
-            if (!FleetShipBufferLookup.HasBuffer(fleetMember.FleetEntity))
-                return;
-
-            var fleetBuffer = FleetShipBufferLookup[fleetMember.FleetEntity];
-            var ships = fleetBuffer.AsNativeArray();
-
-            // Collect transforms of all ships in this fleet
-            var fleetTransforms = new NativeArray<LocalTransform>(ships.Length, Allocator.Temp);
-            for (int i = 0; i < ships.Length; i++)
-            {
-                var shipEntity = ships[i].ShipEntity;
-                if (LocalTransformLookup.HasComponent(shipEntity))
-                    fleetTransforms[i] = LocalTransformLookup[shipEntity];
-            }
-
-            Flocker.Flock(
-                ref navigation, 
-                LocalTransformLookup[entity], 
-                fleetTransforms, 
-                FlockingConfiguration);
-
-            fleetTransforms.Dispose();
-        }
-    }
-
-    public partial struct FleetFlockingJob2 : IJobEntity
-    {
-        [ReadOnly] public BufferLookup<FleetShipBuffer> FleetShipBufferLookup;
-        [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
-        public FlockingConfiguration FlockingConfiguration;
 
         private void Execute(Entity entity, ref Components.Fleet.Fleet fleet)
         {
@@ -95,7 +60,7 @@ namespace Systems.Fleet
                     fleetTransforms[i] = LocalTransformLookup[shipEntity];
             }
             
-            Flocker.Flock(ref fleet, fleetTransforms, FlockingConfiguration);
+            Flocker.Flock(ref fleet, fleetTransforms);
             
             fleetTransforms.Dispose();
         }
@@ -104,14 +69,20 @@ namespace Systems.Fleet
     public partial struct FlockingNavigationJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<Components.Fleet.Fleet> FleetLookup;
+        [ReadOnly] public FlockingConfiguration FlockingConfiguration;
 
-        private void Execute(ref Navigation navigation, FleetMember fleetMember)
+        private void Execute(in LocalTransform localTransform, ref Navigation navigation, FleetMember fleetMember)
         {
             if (FleetLookup.HasComponent(fleetMember.FleetEntity))
             {
                 var fleet = FleetLookup[fleetMember.FleetEntity];
 
-                var direction = fleet.Center + fleet.Alignment;
+                var centerOffset = fleet.Center - localTransform.Position.xz;
+                var cohesion = centerOffset * FlockingConfiguration.CohesionStrength;
+
+                var alignment = fleet.Alignment * FlockingConfiguration.AlignmentStrength;
+                
+                var direction = cohesion + alignment;
                 navigation.DesiredDirection = direction.x0z();
                 
                 var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);

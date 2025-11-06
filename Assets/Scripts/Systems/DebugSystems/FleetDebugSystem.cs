@@ -21,12 +21,12 @@ namespace Systems.DebugSystems
             
             foreach (var fleet in SystemAPI.Query<RefRO<Components.Fleet.Fleet>>())
             {
-                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + forward.x0z());
-                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + back.x0z());
-                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + left.x0z());
-                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + right.x0z());
+                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + forward.x0z(), Color.white);
+                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + back.x0z(), Color.white);
+                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + left.x0z(), Color.white);
+                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + right.x0z(), Color.white);
                 
-                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + fleet.ValueRO.Alignment.x0z());
+                Debug.DrawLine(fleet.ValueRO.Center.x0z(), fleet.ValueRO.Center.x0z() + fleet.ValueRO.Alignment.x0z(), Color.white);
             }
         }
     }

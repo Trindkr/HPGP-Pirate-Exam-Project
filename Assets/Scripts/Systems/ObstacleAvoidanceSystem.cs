@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingJob))]
+    [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingSystem))]
     public partial struct ObstacleAvoidanceSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -29,7 +29,7 @@ namespace Systems
             ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob
             {
                 CollisionWorld = collisionWorld,
-                AvoidanceForce = 3f,
+                AvoidanceForce = 10,
                 ViewDistance = viewDistance,
                 CollisionSphereRadius = collisionSphereRadius,
                 FleetMemberLookup = fleetMemberLookup,
@@ -45,40 +45,71 @@ namespace Systems
 
             [ReadOnly] public CollisionWorld CollisionWorld;
             [ReadOnly] public ComponentLookup<FleetMember> FleetMemberLookup;
-            
+
             private void Execute(
-                in LocalTransform localTransform, 
+                in LocalTransform localTransform,
                 ref Navigation navigation,
                 in FleetMember fleetMember)
             {
                 // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
                 // Forward does not mutate the struct
-                float3 forward = localTransform.Forward();
-                float3 verticalOffset = new float3(0f, 2f, 0);
-                float3 raycastStart = localTransform.Position + verticalOffset + forward * 2f;
+                var position = localTransform.Position;
+                // float3 forward = localTransform.Forward();
+                // float3 verticalOffset = new float3(0f, 2f, 0);
+                // float3 raycastStart = localTransform.Position + verticalOffset + forward * 2f;
+                //
+                // if (!CollisionWorld.SphereCast(
+                //         raycastStart,
+                //         CollisionSphereRadius,
+                //         forward,
+                //         ViewDistance,
+                //         out ColliderCastHit closestHit,
+                //         CollisionFilter.Default))
+                //     return;
+                //
+                // if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
+                //     && SameFleet(fleetMember, otherFleetMember)) 
+                //     return;
 
-                if (!CollisionWorld.SphereCast(
-                        raycastStart,
-                        CollisionSphereRadius,
-                        forward,
-                        ViewDistance,
-                        out ColliderCastHit closestHit,
-                        CollisionFilter.Default))
+                var pointDistanceInput = new PointDistanceInput
+                {
+                    Filter = CollisionFilter.Default,
+                    MaxDistance = ViewDistance,
+                    Position = position
+                };
+
+                var hits = new NativeList<DistanceHit>();
+                var collector = new AllHitsCollector<DistanceHit>(ViewDistance, ref hits);
+
+                if (!CollisionWorld.CalculateDistance(pointDistanceInput, ref collector))
                     return;
-                
-                if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
-                    && SameFleet(fleetMember, otherFleetMember)) 
-                    return;
-                
-                var distanceToHit = math.distance(raycastStart, closestHit.Position);
+                Debug.Log(collector.NumHits);
+
+                var closestDistance = float.MaxValue;
+                DistanceHit closestHit = default;
+                foreach (var distanceHit in collector.AllHits)
+                {
+                    if (distanceHit.Distance < 0.1f) continue;
+                    if (distanceHit.Distance < closestDistance)
+                    {
+                        closestDistance = distanceHit.Distance;
+                        closestHit = distanceHit;
+                    }
+                }
+
+                // if (!CollisionWorld.CalculateDistance(pointDistanceInput, out DistanceHit closestHit))
+                // return;
+
+                Debug.DrawLine(position, closestHit.Position, Color.magenta);
+                var distanceToHit = math.distance(position, closestHit.Position);
                 float normalizedDistance = math.saturate(1f - (distanceToHit / ViewDistance));
-                    
+
                 float3 normal = closestHit.SurfaceNormal;
-                float3 avoidanceDirection = math.normalize(math.reflect(forward, normal));
+                float3 avoidanceDirection = math.normalize(math.reflect(localTransform.Forward(), normal));
                 avoidanceDirection *= normalizedDistance * AvoidanceForce;
 
                 navigation.DesiredDirection += avoidanceDirection;
-                Debug.DrawLine(raycastStart, raycastStart + avoidanceDirection, Color.green);
+                Debug.DrawLine(position, position + avoidanceDirection, Color.green);
             }
 
             private static bool SameFleet(FleetMember fleetMember, FleetMember otherFleetMember)
