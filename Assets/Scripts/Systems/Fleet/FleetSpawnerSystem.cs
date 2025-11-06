@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Components.Enum;
 using Components.Fleet;
 using Model;
 using Unity.Burst;
@@ -26,10 +27,11 @@ namespace Systems.Fleet
                     var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
                     SpawnFleet(
                         ref ecb, 
+                        FactionType.Pirate,
                         spawner.ValueRO.PirateShipsPerFleet, 
                         spawner.ValueRO.PirateShipPrefab, 
                         spawner.ValueRO.SailingConstraints,
-                        spawner.ValueRO.CannonConstraints,
+                        spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
                         offset);
                 }
@@ -39,10 +41,11 @@ namespace Systems.Fleet
                     var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
                     SpawnFleet(
                         ref ecb, 
+                        FactionType.Merchant,
                         spawner.ValueRO.MerchantShipsPerFleet, 
                         spawner.ValueRO.MerchantShipPrefab, 
                         spawner.ValueRO.SailingConstraints,
-                        spawner.ValueRO.CannonConstraints,
+                        spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
                         offset);
                 }
@@ -59,10 +62,11 @@ namespace Systems.Fleet
         [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SpawnFleet(
             ref EntityCommandBuffer ecb,
+            FactionType factionType,
             int fleetSize, 
             Entity shipPrefab, 
             SailingConstraints sailingConstraints,
-            CannonConstraints cannonConstraints,
+            CannonConfiguration cannonConfiguration,
             Entity cannonballPrefab,
             float2 offset) 
         {
@@ -85,13 +89,18 @@ namespace Systems.Fleet
                         shipPrefab,
                         sailingConstraints,
                         cannonballPrefab,
-                        cannonConstraints,
+                        cannonConfiguration,
                         position);
                     ecb.AddComponent(shipEntity, new FleetMember
                     {
                         FleetEntity = fleetEntity
                     });
-                
+
+                    ecb.AddComponent(shipEntity, new Faction
+                    {
+                        Value = factionType
+                    });
+
                     buffer.Add(new FleetShipBuffer { ShipEntity = shipEntity });
                 }
             }
