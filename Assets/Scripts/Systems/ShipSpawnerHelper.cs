@@ -29,8 +29,9 @@ namespace Systems
                 MaxAcceleration = sailingConstraints.MaxAngularAcceleration,
                 MaxSpeed = sailingConstraints.MaxAngularSpeed,
             });
-            
-            float maxSpeed = random.NextFloat(sailingConstraints.MaxLinearSpeed - .5f, sailingConstraints.MaxLinearSpeed + .5f);
+
+            float maxSpeed = sailingConstraints.MaxLinearSpeed; 
+                //random.NextFloat(sailingConstraints.MaxLinearSpeed - .5f, sailingConstraints.MaxLinearSpeed + .5f);
             ecb.AddComponent(ship, new LinearMotion
             {
                 MaxAcceleration = sailingConstraints.MaxLinearAcceleration,

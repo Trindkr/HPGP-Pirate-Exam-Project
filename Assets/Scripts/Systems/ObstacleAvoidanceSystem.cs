@@ -65,7 +65,7 @@ namespace Systems
                         out ColliderCastHit closestHit,
                         CollisionFilter.Default))
                     return;
-
+                
                 if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
                     && SameFleet(fleetMember, otherFleetMember)) 
                     return;

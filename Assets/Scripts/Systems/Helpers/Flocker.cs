@@ -56,7 +56,7 @@ namespace Systems.Helpers
                             separation * separationStrength;
 
             navigation.DesiredDirection = math.normalize(target.x0z());
-            var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
+            var magnitudeSquared = math.lengthsq(target.x0z());
             navigation.DesiredMoveSpeed = magnitudeSquared;
         }
     }
