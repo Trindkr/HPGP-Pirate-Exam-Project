@@ -8,8 +8,6 @@ namespace Authoring
 {
     public class CannonballAuthoring : MonoBehaviour
     {
-        //public GameObject Prefab;
-
         private class CannonballAuthoringBaker : Baker<CannonballAuthoring>
         {
             public override void Bake(CannonballAuthoring authoring)
