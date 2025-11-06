@@ -1,9 +1,9 @@
-using System.Runtime.CompilerServices;
 using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems
 {
@@ -25,8 +25,11 @@ namespace Systems
     {
         public float DeltaTime;
 
-        public void Execute(ref LocalTransform transform, ref LinearMotion motion, in Navigation navigation)
+        public void Execute(ref LocalTransform transform, ref LinearMotion motion, ref Navigation navigation)
         {
+            float dot = math.dot(navigation.DesiredDirection, transform.Forward());
+            navigation.DesiredMoveSpeed = math.min(navigation.DesiredMoveSpeed, motion.MaxSpeed) * math.max(dot, 0f);
+        
             float desiredAcceleration = math.clamp(navigation.DesiredMoveSpeed - motion.Speed, -motion.MaxAcceleration, motion.MaxAcceleration);
             motion.Speed = math.min(motion.Speed + desiredAcceleration * DeltaTime, motion.MaxSpeed);
             transform.Position += transform.Forward() * motion.Speed * DeltaTime;
