@@ -15,10 +15,9 @@ namespace Systems
             Entity prefab,
             SailingConstraints sailingConstraints,
             Entity cannonBallPrefab,
-            Model.CannonConfiguration cannonConfiguration,
+            CannonConfiguration cannonConfiguration,
             float3 position)
         {
-            Random random = new Random((uint) position.x + (uint) position.z);
             var ship = ecb.Instantiate(prefab);
             var localTransform =
                 LocalTransform.FromPosition(position);
@@ -30,12 +29,10 @@ namespace Systems
                 MaxSpeed = sailingConstraints.MaxAngularSpeed,
             });
 
-            float maxSpeed = sailingConstraints.MaxLinearSpeed; 
-                //random.NextFloat(sailingConstraints.MaxLinearSpeed - .5f, sailingConstraints.MaxLinearSpeed + .5f);
             ecb.AddComponent(ship, new LinearMotion
             {
                 MaxAcceleration = sailingConstraints.MaxLinearAcceleration,
-                MaxSpeed = maxSpeed,
+                MaxSpeed = sailingConstraints.MaxLinearSpeed,
             });
 
             ecb.AddComponent<Navigation>(ship);
