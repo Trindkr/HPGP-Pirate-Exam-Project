@@ -30,7 +30,7 @@ public partial struct DespawnBelowYSystem : ISystem
         {
             if (localTransform.Position.y < despawnBelowYLevel.YLevel)
             {
-                //EntityCommandBuffer.DestroyEntity(entity.Index, entity);
+                EntityCommandBuffer.DestroyEntity(entity.Index, entity);
             }
         }
     }

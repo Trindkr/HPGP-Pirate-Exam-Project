@@ -21,7 +21,6 @@ namespace Systems
     }
 
     [BurstCompile]
-    [WithNone(typeof(Sinking))] 
     public partial struct MoveJob : IJobEntity
     {
         public float DeltaTime;

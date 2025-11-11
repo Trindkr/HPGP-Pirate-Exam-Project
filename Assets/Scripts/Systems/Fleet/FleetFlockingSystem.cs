@@ -31,6 +31,10 @@ namespace Systems.Fleet
    }
 
     [BurstCompile]
+    [WithNone(typeof(Sinking))]
+    //TODO: måske skal sinking skibe også fjernes fra flocking, så skibe ikke flocker med sunkne skibe?
+    // PT. flocker de levende skibe stadig med de sunkne skibe, selvom sunkne skibe ikke flocker (har ingen desired speed/direction)
+    //Andre måder at håndtere det på? Vi snakkede om object pooling.
     public partial struct FleetFlockingJob : IJobEntity
     {
         [ReadOnly] public BufferLookup<FleetShipBuffer> FleetShipBufferLookup;
