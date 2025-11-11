@@ -29,12 +29,12 @@ namespace Systems
             ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob
             {
                 CollisionWorld = collisionWorld,
-                AvoidanceForce = 10,
+                AvoidanceForce = 100f,
                 ViewDistance = viewDistance,
                 CollisionSphereRadius = collisionSphereRadius,
                 FleetMemberLookup = fleetMemberLookup,
             };
-            state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
+            state.Dependency = obstacleAvoidanceJob.Schedule(state.Dependency);
         }
 
         public partial struct ObstacleAvoidanceJob : IJobEntity
@@ -43,7 +43,7 @@ namespace Systems
             public float ViewDistance;
             public float CollisionSphereRadius;
 
-            [ReadOnly] public CollisionWorld CollisionWorld;
+            public CollisionWorld CollisionWorld;
             [ReadOnly] public ComponentLookup<FleetMember> FleetMemberLookup;
 
             private void Execute(
@@ -54,51 +54,51 @@ namespace Systems
                 // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
                 // Forward does not mutate the struct
                 var position = localTransform.Position;
-                // float3 forward = localTransform.Forward();
-                // float3 verticalOffset = new float3(0f, 2f, 0);
-                // float3 raycastStart = localTransform.Position + verticalOffset + forward * 2f;
-                //
-                // if (!CollisionWorld.SphereCast(
-                //         raycastStart,
-                //         CollisionSphereRadius,
-                //         forward,
-                //         ViewDistance,
-                //         out ColliderCastHit closestHit,
-                //         CollisionFilter.Default))
-                //     return;
-                //
-                // if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
-                //     && SameFleet(fleetMember, otherFleetMember)) 
-                //     return;
-
-                var pointDistanceInput = new PointDistanceInput
-                {
-                    Filter = CollisionFilter.Default,
-                    MaxDistance = ViewDistance,
-                    Position = position
-                };
-
-                var hits = new NativeList<DistanceHit>();
-                var collector = new AllHitsCollector<DistanceHit>(ViewDistance, ref hits);
-
-                if (!CollisionWorld.CalculateDistance(pointDistanceInput, ref collector))
+                float3 forward = localTransform.Forward();
+                float3 verticalOffset = new float3(0f, 2f, 0);
+                float3 raycastStart = localTransform.Position + verticalOffset + forward * 2f;
+                
+                if (!CollisionWorld.SphereCast(
+                        raycastStart,
+                        CollisionSphereRadius,
+                        forward,
+                        ViewDistance,
+                        out ColliderCastHit closestHit,
+                        CollisionFilter.Default))
                     return;
-                Debug.Log(collector.NumHits);
+                
+                if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
+                    && SameFleet(fleetMember, otherFleetMember)) 
+                    return;
 
-                var closestDistance = float.MaxValue;
-                DistanceHit closestHit = default;
-                foreach (var distanceHit in collector.AllHits)
-                {
-                    if (distanceHit.Distance < 0.1f) continue;
-                    if (distanceHit.Distance < closestDistance)
-                    {
-                        closestDistance = distanceHit.Distance;
-                        closestHit = distanceHit;
-                    }
-                }
+                // var pointDistanceInput = new PointDistanceInput
+                // {
+                //     Filter = CollisionFilter.Default,
+                //     MaxDistance = ViewDistance,
+                //     Position = position
+                // };
+
+                // var hits = new NativeList<DistanceHit>();
+                // var collector = new AllHitsCollector<DistanceHit>(ViewDistance, ref hits);
+                //
+                // if (!CollisionWorld.CalculateDistance(pointDistanceInput, ref collector))
+                //     return;
+                // Debug.Log(collector.NumHits);
+                //
+                // var closestDistance = float.MaxValue;
+                // DistanceHit closestHit = default;
+                // foreach (var distanceHit in collector.AllHits)
+                // {
+                //     if (distanceHit.Distance < 0.1f) continue;
+                //     if (distanceHit.Distance < closestDistance)
+                //     {
+                //         closestDistance = distanceHit.Distance;
+                //         closestHit = distanceHit;
+                //     }
+                // }
 
                 // if (!CollisionWorld.CalculateDistance(pointDistanceInput, out DistanceHit closestHit))
-                // return;
+                    // return;
 
                 Debug.DrawLine(position, closestHit.Position, Color.magenta);
                 var distanceToHit = math.distance(position, closestHit.Position);
@@ -110,6 +110,8 @@ namespace Systems
 
                 navigation.DesiredDirection += avoidanceDirection;
                 Debug.DrawLine(position, position + avoidanceDirection, Color.green);
+                
+                // hits.Dispose();
             }
 
             private static bool SameFleet(FleetMember fleetMember, FleetMember otherFleetMember)
