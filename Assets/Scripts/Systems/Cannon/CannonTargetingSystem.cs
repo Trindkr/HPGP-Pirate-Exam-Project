@@ -50,7 +50,6 @@ namespace Systems.Cannon
             [ReadOnly] public uint MerchantMask;
             public float3 RaycastYOffset;
 
-            //TODO: fjern evt debug drawlines?
             void Execute(ref CannonConstraints cannonConstraints, in LocalToWorld localToWorld, in Faction faction)
             {
                 float3 start = localToWorld.Position + RaycastYOffset;
@@ -81,7 +80,7 @@ namespace Systems.Cannon
                 if (CollisionWorld.CastRay(rightRay, out RaycastHit hitRight))
                 {
 #if UNITY_EDITOR
-                    Debug.DrawLine(start, hitRight.Position, Color.green);
+                    //Debug.DrawLine(start, hitRight.Position, Color.green);
 #endif
                     float hitDistance = math.distance(hitRight.Position, start);
                     if (hitDistance >= tolerance)
@@ -91,10 +90,10 @@ namespace Systems.Cannon
                     }
                 }
 #if UNITY_EDITOR
-                else
-                {
-                    Debug.DrawLine(start, start + right * range, Color.red);
-                }
+                // else
+                // {
+                //     Debug.DrawLine(start, start + right * range, Color.red);
+                // }
 #endif
 
                 if (foundTarget)
@@ -111,7 +110,7 @@ namespace Systems.Cannon
                 if (CollisionWorld.CastRay(leftRay, out RaycastHit hitLeft))
                 {
 #if UNITY_EDITOR
-                    Debug.DrawLine(start, hitLeft.Position, Color.green);
+                    //Debug.DrawLine(start, hitLeft.Position, Color.green);
 #endif
                     float hitDistance = math.distance(hitLeft.Position, start);
                     if (hitDistance >= tolerance)
@@ -121,10 +120,10 @@ namespace Systems.Cannon
                     }
                 }
 #if UNITY_EDITOR
-                else
-                {
-                    Debug.DrawLine(start, start + left * range, Color.red);
-                }
+                // else
+                // {
+                //     Debug.DrawLine(start, start + left * range, Color.red);
+                // }
 #endif
 
                 if (!foundTarget)

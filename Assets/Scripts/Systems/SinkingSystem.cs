@@ -47,7 +47,7 @@ namespace Systems
                 float3 up = transform.Up();
                 float upDot = math.dot(up, math.up());
 
-                // tilt til vi vender på hovedet
+                // tilt til vi vender paa hovedet
                 if (upDot > 0f)
                 {
                     float3 tiltAxis = math.normalize(sinking.TiltAxis);
