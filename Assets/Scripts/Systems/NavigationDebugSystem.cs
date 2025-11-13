@@ -17,7 +17,7 @@ namespace Systems
             {
                 var position = transform.ValueRO.Position;
                 var desiredDirection = navigation.ValueRO.DesiredDirection;
-                Debug.DrawLine(position, position + desiredDirection, Color.red);
+                //Debug.DrawLine(position, position + desiredDirection, Color.red);
                 
                 // var forward = transform.ValueRO.Forward();
                 // var speed = navigation.ValueRO.DesiredMoveSpeed;

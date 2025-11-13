@@ -54,7 +54,9 @@ namespace Systems.Helpers
             float2 target = alignment * alignmentStrength + 
                             cohesion * cohesionStrength +
                             separation * separationStrength;
-
+            if(math.lengthsq(target) < float.Epsilon)
+                return;
+            
             navigation.DesiredDirection = math.normalize(target.x0z());
             var magnitudeSquared = math.lengthsq(target.x0z());
             navigation.DesiredMoveSpeed = magnitudeSquared;
