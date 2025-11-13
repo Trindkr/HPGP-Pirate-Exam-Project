@@ -1,63 +1,85 @@
+using Components;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
-using UnityEngine;
 
 namespace Systems.Cannon
 {
     [UpdateInGroup(typeof(PhysicsSystemGroup))]
     [UpdateAfter(typeof(PhysicsSimulationGroup))]
+    [BurstCompile]
     public partial struct CannonballCollisionSystem : ISystem
     {
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<PhysicsWorldSingleton>();
             state.RequireForUpdate<SimulationSingleton>();
+            state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var simulation = SystemAPI.GetSingleton<SimulationSingleton>().AsSimulation();
-            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+            var simulation = SystemAPI.GetSingleton<SimulationSingleton>();
+            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
 
-            simulation.FinalJobHandle.Complete();
-
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-            foreach (var collisionEvent in simulation.CollisionEvents)
+            var job = new CannonballCollisionJob
             {
-                //Debug.Log("Collision detected");
+                CannonballLookup = SystemAPI.GetComponentLookup<CannonballTag>(true),
+                ShipLookup = SystemAPI.GetComponentLookup<Ship>(true),
+                Ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
+            };
 
-                Entity entityA = collisionEvent.EntityA;
-                Entity entityB = collisionEvent.EntityB;
+            state.Dependency = job.Schedule(simulation, state.Dependency);
+        }
 
-                bool aIsCannonball = SystemAPI.HasComponent<CannonballTag>(entityA);
-                bool bIsCannonball = SystemAPI.HasComponent<CannonballTag>(entityB);
 
-                bool aIsShip = SystemAPI.HasComponent<Ship>(entityA);
-                bool bIsShip = SystemAPI.HasComponent<Ship>(entityB);
+        [BurstCompile]
+        private struct CannonballCollisionJob : ICollisionEventsJob
+        {
+            [ReadOnly] public ComponentLookup<CannonballTag> CannonballLookup;
+            [ReadOnly] public ComponentLookup<Ship> ShipLookup;
+            public EntityCommandBuffer.ParallelWriter Ecb;
+
+            public void Execute(CollisionEvent collisionEvent)
+            {
+                var entityA = collisionEvent.EntityA;
+                var entityB = collisionEvent.EntityB;
+
+                bool aIsCannonball = CannonballLookup.HasComponent(entityA);
+                bool bIsCannonball = CannonballLookup.HasComponent(entityB);
+                bool aIsShip = ShipLookup.HasComponent(entityA);
+                bool bIsShip = ShipLookup.HasComponent(entityB);
 
                 if (aIsCannonball && bIsShip)
                 {
-                    HandleHit(ref ecb, entityA, entityB);
+                    HandleHit(entityA, entityB);
                 }
                 else if (bIsCannonball && aIsShip)
                 {
-                    HandleHit(ref ecb, entityB, entityA);
+                    HandleHit(entityB, entityA);
                 }
             }
 
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
-        }
+            private void HandleHit(Entity cannonball, Entity ship)
+            {
+                var rand = new Random((uint)(ship.Index * 7919 + cannonball.Index * 17));
 
-        private void HandleHit(ref EntityCommandBuffer ecb, Entity cannonball, Entity ship)
-        {
-            Debug.Log($"Cannonball {cannonball} hit Ship {ship}");
+                Ecb.AddComponent(0, ship, new Sinking
+                {
+                    SinkSpeed = 1f,
+                    TiltSpeed = 20f,
+                    TiltAxis = math.normalize(new float3(
+                        rand.NextFloat(-1f, 1f),
+                        0f,
+                        rand.NextFloat(-1f, 1f)))
+                });
 
-            //ecb.AddComponent(ship, new Sinking());
-            //ecb.DestroyEntity(cannonball); //should cannonball be destroyed?
+                Ecb.DestroyEntity(0, cannonball);
+            }
         }
     }
 }

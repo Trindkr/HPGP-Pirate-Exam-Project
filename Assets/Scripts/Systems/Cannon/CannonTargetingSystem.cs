@@ -8,10 +8,12 @@ using Components.Cannon;
 using Components.Enum;
 
 using RaycastHit = Unity.Physics.RaycastHit;
+using Unity.Collections;
 
 namespace Systems.Cannon
 {
     [BurstCompile]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CannonTargetingSystem : ISystem
     {
         private uint _pirateLayerMask;
@@ -21,26 +23,42 @@ namespace Systems.Cannon
         {
             state.RequireForUpdate<PhysicsWorldSingleton>();
 
-            // LayerMask.NameToLayer must be done outside Burst
             _pirateLayerMask = 1u << LayerMask.NameToLayer("Pirate");
             _merchantLayerMask = 1u << LayerMask.NameToLayer("Merchant");
         }
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-
-            var raycastYOffset = new float3(0, .5f, 0); 
-
-            foreach (var (localToWorld, cannonConstraints, faction) in
-                     SystemAPI.Query<RefRO<LocalToWorld>, RefRW<CannonConstraints>, RefRO<Faction>>())
+            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
+            var job = new CannonTargetingJob
             {
-                float3 raycastStartPosition = localToWorld.ValueRO.Position + raycastYOffset;
-                float3 rightDirection = localToWorld.ValueRO.Right;
-                float3 leftDirection = -rightDirection;
-                float range = cannonConstraints.ValueRO.ShootingRange;
+                CollisionWorld = physicsWorld.CollisionWorld,
+                PirateMask = _pirateLayerMask,
+                MerchantMask = _merchantLayerMask,
+                RaycastYOffset = new float3(0, 0.5f, 0)
+            };
 
-                uint targetMask = faction.ValueRO.Value == FactionType.Pirate ? _merchantLayerMask : _pirateLayerMask;
+            state.Dependency = job.ScheduleParallel(state.Dependency);
+        }
+
+        [BurstCompile]
+        private partial struct CannonTargetingJob : IJobEntity
+        {
+            [ReadOnly] public CollisionWorld CollisionWorld;
+            [ReadOnly] public uint PirateMask;
+            [ReadOnly] public uint MerchantMask;
+            public float3 RaycastYOffset;
+
+            void Execute(ref CannonConstraints cannonConstraints, in LocalToWorld localToWorld, in Faction faction)
+            {
+                float3 start = localToWorld.Position + RaycastYOffset;
+                float3 right = localToWorld.Right;
+                float3 left = -right;
+                float range = cannonConstraints.ShootingRange;
+
+                uint targetMask = faction.Value == FactionType.Pirate ? MerchantMask : PirateMask;
+                float tolerance = range * 0.8f;
 
                 var filter = new CollisionFilter
                 {
@@ -49,41 +67,68 @@ namespace Systems.Cannon
                     GroupIndex = 0
                 };
 
-                // Right ray
-                var rightRayEnd = raycastStartPosition + rightDirection * range;
+                bool foundTarget = false;
+
+                // right ray
                 var rightRay = new RaycastInput
                 {
-                    Start = raycastStartPosition,
-                    End = rightRayEnd,
+                    Start = start,
+                    End = start + right * range,
                     Filter = filter
                 };
 
-                if (physicsWorld.CastRay(rightRay, out RaycastHit hitRight))
+                if (CollisionWorld.CastRay(rightRay, out RaycastHit hitRight))
                 {
-                    cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Right;
-                    Debug.DrawLine(raycastStartPosition, hitRight.Position, Color.green);
-                    continue;
+#if UNITY_EDITOR
+                    //Debug.DrawLine(start, hitRight.Position, Color.green);
+#endif
+                    float hitDistance = math.distance(hitRight.Position, start);
+                    if (hitDistance >= tolerance)
+                    {
+                        cannonConstraints.ShootingDirection = ShootingDirection.Right;
+                        foundTarget = true;
+                    }
                 }
-               Debug.DrawLine(raycastStartPosition, rightRayEnd, Color.red);
+#if UNITY_EDITOR
+                // else
+                // {
+                //     Debug.DrawLine(start, start + right * range, Color.red);
+                // }
+#endif
 
-                // Left ray
-                var leftRayEnd = raycastStartPosition + leftDirection * range;
+                if (foundTarget)
+                    return;
+
+                // left ray
                 var leftRay = new RaycastInput
                 {
-                    Start = raycastStartPosition,
-                    End = leftRayEnd,
+                    Start = start,
+                    End = start + left * range,
                     Filter = filter
                 };
 
-                if (physicsWorld.CastRay(leftRay, out RaycastHit hitLeft))
+                if (CollisionWorld.CastRay(leftRay, out RaycastHit hitLeft))
                 {
-                    cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Left;
-                    Debug.DrawLine(raycastStartPosition, hitLeft.Position, Color.green);
+#if UNITY_EDITOR
+                    //Debug.DrawLine(start, hitLeft.Position, Color.green);
+#endif
+                    float hitDistance = math.distance(hitLeft.Position, start);
+                    if (hitDistance >= tolerance)
+                    {
+                        cannonConstraints.ShootingDirection = ShootingDirection.Left;
+                        foundTarget = true;
+                    }
                 }
-                else
+#if UNITY_EDITOR
+                // else
+                // {
+                //     Debug.DrawLine(start, start + left * range, Color.red);
+                // }
+#endif
+
+                if (!foundTarget)
                 {
-                    cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.None;
-                    Debug.DrawLine(raycastStartPosition, leftRayEnd, Color.red);
+                    cannonConstraints.ShootingDirection = ShootingDirection.None;
                 }
             }
         }
