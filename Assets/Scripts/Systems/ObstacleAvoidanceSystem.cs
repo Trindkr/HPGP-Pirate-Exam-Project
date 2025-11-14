@@ -37,6 +37,7 @@ namespace Systems
             state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
         }
 
+        [WithNone(typeof(Sinking))]
         public partial struct ObstacleAvoidanceJob : IJobEntity
         {
             public float AvoidanceForce;
@@ -45,9 +46,10 @@ namespace Systems
 
             [ReadOnly] public CollisionWorld CollisionWorld;
             [ReadOnly] public ComponentLookup<FleetMember> FleetMemberLookup;
-            
+
             private void Execute(
-                in LocalTransform localTransform, 
+                in Entity entity,
+                in LocalTransform localTransform,
                 ref Navigation navigation,
                 in FleetMember fleetMember)
             {
@@ -65,14 +67,24 @@ namespace Systems
                         out ColliderCastHit closestHit,
                         CollisionFilter.Default))
                     return;
-                
+
                 if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
-                    && SameFleet(fleetMember, otherFleetMember)) 
+                    && SameFleet(fleetMember, otherFleetMember))
                     return;
-                
+
                 var distanceToHit = math.distance(raycastStart, closestHit.Position);
                 float normalizedDistance = math.saturate(1f - (distanceToHit / ViewDistance));
-                    
+
+                
+                if (normalizedDistance < 0.2f)
+                {
+                    navigation.DesiredMoveSpeed = 0f;
+                }
+                else
+                {
+                    navigation.DesiredMoveSpeed *= normalizedDistance;
+                }
+
                 float3 normal = closestHit.SurfaceNormal;
                 float3 avoidanceDirection = math.normalize(math.reflect(forward, normal));
                 avoidanceDirection *= normalizedDistance * AvoidanceForce;
