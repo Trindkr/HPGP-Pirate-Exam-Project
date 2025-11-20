@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Components;
 using Components.Enum;
 using Components.Fleet;
+using Components.Tags;
 using Model;
 using Unity.Burst;
 using Unity.Entities;
@@ -15,7 +16,7 @@ namespace Systems.Fleet
         {
             state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
         }
-        
+
         public void OnStartRunning(ref SystemState state)
         {
             Random random = new Random(42);
@@ -23,15 +24,15 @@ namespace Systems.Fleet
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var spawner in SystemAPI.Query<RefRO<FleetSpawner>>())
             {
-                int pirateFleetAmount = spawner.ValueRO.PirateShipAmount / spawner.ValueRO.PirateShipsPerFleet;
-                for (int i = 0; i < pirateFleetAmount; i++)
+                int merchantFleetAmount = spawner.ValueRO.MerchantShipAmount/spawner.ValueRO.MerchantShipsPerFleet;
+                for (int i = 0; i < merchantFleetAmount; i++)
                 {
-                    var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
+                    var offset = RandomPointOnUnitCircle(ref random) * (i + 1) * 30;
                     SpawnFleet(
-                        ref ecb, 
-                        FactionType.Pirate,
-                        spawner.ValueRO.PirateShipsPerFleet, 
-                        spawner.ValueRO.PirateShipPrefab, 
+                        ref ecb,
+                        FactionType.Merchant,
+                        spawner.ValueRO.MerchantShipsPerFleet,
+                        spawner.ValueRO.MerchantShipPrefab,
                         spawner.ValueRO.SailingConstraints,
                         spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
@@ -39,15 +40,15 @@ namespace Systems.Fleet
                         i % 5);
                 }
                 
-                int merchantFleetAmount = spawner.ValueRO.MerchantShipAmount / spawner.ValueRO.MerchantShipsPerFleet;
-                for (int i = 0; i < merchantFleetAmount; i++)
+                int pirateFleetAmount = spawner.ValueRO.PirateShipAmount/spawner.ValueRO.PirateShipsPerFleet;
+                for (int i = 0; i < pirateFleetAmount; i++)
                 {
-                    var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
+                    var offset = RandomPointOnUnitCircle(ref random) * (i + 1) * 30;
                     SpawnFleet(
-                        ref ecb, 
-                        FactionType.Merchant,
-                        spawner.ValueRO.MerchantShipsPerFleet, 
-                        spawner.ValueRO.MerchantShipPrefab, 
+                        ref ecb,
+                        FactionType.Pirate,
+                        spawner.ValueRO.PirateShipsPerFleet,
+                        spawner.ValueRO.PirateShipPrefab,
                         spawner.ValueRO.SailingConstraints,
                         spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
@@ -56,26 +57,42 @@ namespace Systems.Fleet
                 }
             }
         }
-        
+
+        [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float2 RandomPointOnUnitCircle(ref Unity.Mathematics.Random random)
+        {
+            float angle = random.NextFloat(0f, math.PI2);
+            return new float2(math.cos(angle), math.sin(angle));
+        }
+
         [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SpawnFleet(
             ref EntityCommandBuffer ecb,
             FactionType factionType,
-            int fleetSize, 
-            Entity shipPrefab, 
+            int fleetSize,
+            Entity shipPrefab,
             SailingConstraints sailingConstraints,
             CannonConfiguration cannonConfiguration,
             Entity cannonballPrefab,
             float2 offset,
-            int islandIndex) 
+            int islandIndex)
         {
             var fleetEntity = ecb.CreateEntity();
-            
+
             ecb.AddComponent(fleetEntity, new Components.Fleet.Fleet());
-            
+
             var buffer = ecb.AddBuffer<FleetShipBuffer>(fleetEntity);
 
-            var xAmount = (uint) math.round(math.sqrt(fleetSize));
+            if (factionType == FactionType.Merchant)
+            {
+                ecb.AddComponent<Merchent>(fleetEntity);
+            }
+            else
+            {
+                ecb.AddComponent<Pirate>(fleetEntity);
+            }
+
+            var xAmount = (uint)math.round(math.sqrt(fleetSize));
             var zAmount = xAmount;
             for (int z = 0; z < zAmount; z++)
             {
@@ -106,20 +123,26 @@ namespace Systems.Fleet
                         {
                             IslandIndex = islandIndex
                         });
+                        
+                        ecb.AddComponent<Merchent>(shipEntity);
                     }
+                    else
+                    {
+                        ecb.AddComponent(shipEntity, new MerchantSeeker()
+                        {
+                            Target = default
+                        });
+                        
+                        ecb.AddComponent<Pirate>(shipEntity);
+
+                    }
+
 
                     buffer.Add(new FleetShipBuffer { ShipEntity = shipEntity });
                 }
             }
         }
-        
-        [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private float2 RandomPointOnUnitCircle(ref Random random)
-        {
-            float angle = random.NextFloat(0f, math.PI2);
-            return new float2(math.cos(angle), math.sin(angle));
-        }
-        
+
 
         public void OnStopRunning(ref SystemState state)
         {

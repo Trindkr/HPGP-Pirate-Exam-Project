@@ -31,7 +31,7 @@ namespace Systems
     public partial struct TradeRouteJob : IJobEntity
     {
         [ReadOnly] public DynamicBuffer<IslandPositionBuffer> IslandPositions;
-        public void Execute(ref LocalTransform transform, ref IslandSeeker islandSeeker, ref Navigation navigation)
+        public void Execute(in LocalTransform transform, ref IslandSeeker islandSeeker, ref Navigation navigation)
         {
             var targetIsland = IslandPositions[islandSeeker.IslandIndex].Position;
             var offset = targetIsland - transform.Position;
