@@ -67,9 +67,9 @@ namespace Systems
                         CollisionFilter.Default))
                     return;
                 
-                if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
-                    && SameFleet(fleetMember, otherFleetMember)) 
-                    return;
+                // if (FleetMemberLookup.TryGetComponent(closestHit.Entity, out var otherFleetMember)
+                //     && SameFleet(fleetMember, otherFleetMember)) 
+                //     return;
 
                 // var pointDistanceInput = new PointDistanceInput
                 // {
@@ -108,7 +108,8 @@ namespace Systems
                 float3 avoidanceDirection = math.normalize(math.reflect(localTransform.Forward(), normal));
                 avoidanceDirection *= normalizedDistance * AvoidanceForce;
 
-                navigation.DesiredDirection += avoidanceDirection;
+                navigation.DesiredDirection = avoidanceDirection;
+                navigation.DesiredMoveSpeed = 10f;
                 Debug.DrawLine(position, position + avoidanceDirection, Color.green);
                 
                 // hits.Dispose();

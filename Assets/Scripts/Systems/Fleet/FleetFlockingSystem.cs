@@ -83,10 +83,10 @@ namespace Systems.Fleet
                 var alignment = fleet.Alignment * FlockingConfiguration.AlignmentStrength;
                 
                 var direction = cohesion + alignment;
-                navigation.DesiredDirection = direction.x0z();
+                // navigation.DesiredDirection = direction.x0z();
                 
                 var magnitudeSquared = math.lengthsq(navigation.DesiredDirection);
-                navigation.DesiredMoveSpeed = magnitudeSquared;
+                // navigation.DesiredMoveSpeed = magnitudeSquared;
             }
         }
     }
