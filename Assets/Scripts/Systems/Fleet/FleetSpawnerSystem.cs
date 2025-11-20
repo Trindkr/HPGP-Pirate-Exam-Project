@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Components.Enum;
 using Components.Fleet;
 using Model;
+using Systems.Helpers;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -53,13 +54,6 @@ namespace Systems.Fleet
         }
         
         [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float2 RandomPointOnUnitCircle(ref Unity.Mathematics.Random random)
-        {
-            float angle = random.NextFloat(0f, math.PI2);
-            return new float2(math.cos(angle), math.sin(angle));
-        }
-        
-        [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SpawnFleet(
             ref EntityCommandBuffer ecb,
             FactionType factionType,
@@ -106,6 +100,12 @@ namespace Systems.Fleet
             }
         }
         
+        [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private float2 RandomPointOnUnitCircle(ref Random random)
+        {
+            float angle = random.NextFloat(0f, math.PI2);
+            return new float2(math.cos(angle), math.sin(angle));
+        }
         
 
         public void OnStopRunning(ref SystemState state)
