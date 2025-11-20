@@ -18,17 +18,29 @@ namespace Systems
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
+            // Create singleton entity
+            var singleton = state.EntityManager.CreateEntity();
+            state.EntityManager.AddBuffer<IslandPositionBuffer>(singleton);
+            DynamicBuffer<IslandPositionBuffer> buffer = state.EntityManager.GetBuffer<IslandPositionBuffer>(singleton);
+            
             foreach (var islandSpawner in SystemAPI.Query<RefRO<IslandSpawner>>())
             {
                 for (int i = 0; i < islandSpawner.ValueRO.IslandAmount; i++)
                 {
                     float angle = math.PI2 / islandSpawner.ValueRO.IslandAmount * i;
-                    float2 pointOnUnitCircle = new float2(math.cos(angle), math.sin(angle));
-                    float2 spawnPoint = pointOnUnitCircle * islandSpawner.ValueRO.Radius;
+                    var pointOnUnitCircle = new float2(math.cos(angle), math.sin(angle));
+                    var spawnPoint = pointOnUnitCircle * islandSpawner.ValueRO.Radius;
+                    var position = spawnPoint.x0z(); 
+                    
                     Entity island = ecb.Instantiate(islandSpawner.ValueRO.IslandPrefab);
                     var localTransform =
-                        LocalTransform.FromPosition(spawnPoint.x0z());
+                        LocalTransform.FromPosition(position);
                     ecb.SetComponent(island, localTransform);
+
+                    buffer.Add(new IslandPositionBuffer
+                    {
+                        Position = position,
+                    });
                 }
             }
         }

@@ -24,7 +24,7 @@ namespace Systems.Fleet
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var spawner in SystemAPI.Query<RefRO<FleetSpawner>>())
             {
-                for (int i = 0; i < spawner.ValueRO.NumberOfPirateFleets; i++)
+                for (int i = 0; i < spawner.ValueRO.PirateShipAmount; i++)
                 {
                     var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
                     SpawnFleet(
@@ -39,7 +39,7 @@ namespace Systems.Fleet
                         i % 5);
                 }
                 
-                for (int i = 0; i < spawner.ValueRO.NumberOfMerchantFleets; i++)
+                for (int i = 0; i < spawner.ValueRO.MerchantShipAmount; i++)
                 {
                     var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
                     SpawnFleet(

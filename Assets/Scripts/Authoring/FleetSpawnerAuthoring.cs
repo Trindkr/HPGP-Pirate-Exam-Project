@@ -19,18 +19,17 @@ namespace Authoring
             public override void Bake(FleetSpawnerAuthoring authoring)
             {
                 var spawner = GetEntity(authoring, TransformUsageFlags.None);
+
+                var pirateShipAmount = authoring._simulationConfig.ShipAmount / 2;
+                var merchantShipAmount = authoring._simulationConfig.ShipAmount / 2;
+                
                 
                 AddComponent(spawner, new FleetSpawner
                 {
-                    
-                    NumberOfPirateFleets = authoring._simulationConfig.NumberOfPirateFleets,
-                    NumberOfMerchantFleets = authoring._simulationConfig.NumberOfMerchantFleets,
-                    MerchantShipsPerFleet = 
-                        authoring._simulationConfig.NumberOfMerchantShips 
-                        / authoring._simulationConfig.NumberOfMerchantFleets,
-                    PirateShipsPerFleet = 
-                        authoring._simulationConfig.NumberOfPirateShips 
-                        / authoring._simulationConfig.NumberOfPirateFleets,
+                    PirateShipAmount = pirateShipAmount,
+                    MerchantShipAmount = merchantShipAmount,
+                    MerchantShipsPerFleet = authoring._simulationConfig.FleetSize,
+                    PirateShipsPerFleet = authoring._simulationConfig.FleetSize,
                     PirateShipPrefab = GetEntity(authoring._pirateShipPrefab, TransformUsageFlags.Dynamic),
                     MerchantShipPrefab = GetEntity(authoring._merchantShipPrefab, TransformUsageFlags.Dynamic),
                     SailingConstraints = authoring._simulationConfig.SailingConstraints,

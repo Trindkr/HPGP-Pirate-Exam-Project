@@ -5,8 +5,8 @@ namespace Components.Fleet
 {
     public struct FleetSpawner : IComponentData
     {
-        public int NumberOfPirateFleets;
-        public int NumberOfMerchantFleets;
+        public int PirateShipAmount;
+        public int MerchantShipAmount;
         public int PirateShipsPerFleet;
         public int MerchantShipsPerFleet;
         
