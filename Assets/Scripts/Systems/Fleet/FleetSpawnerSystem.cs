@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Components;
 using Components.Enum;
 using Components.Fleet;
 using Model;
@@ -34,7 +35,8 @@ namespace Systems.Fleet
                         spawner.ValueRO.SailingConstraints,
                         spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
-                        offset);
+                        offset,
+                        i % 5);
                 }
                 
                 for (int i = 0; i < spawner.ValueRO.NumberOfMerchantFleets; i++)
@@ -48,7 +50,8 @@ namespace Systems.Fleet
                         spawner.ValueRO.SailingConstraints,
                         spawner.ValueRO.CannonConfiguration,
                         spawner.ValueRO.CannonballPrefab,
-                        offset);
+                        offset,
+                        i % 5);
                 }
             }
         }
@@ -62,7 +65,8 @@ namespace Systems.Fleet
             SailingConstraints sailingConstraints,
             CannonConfiguration cannonConfiguration,
             Entity cannonballPrefab,
-            float2 offset) 
+            float2 offset,
+            int islandIndex) 
         {
             var fleetEntity = ecb.CreateEntity();
             
@@ -94,6 +98,14 @@ namespace Systems.Fleet
                     {
                         Value = factionType
                     });
+
+                    if (factionType == FactionType.Merchant)
+                    {
+                        ecb.AddComponent(shipEntity, new IslandSeeker()
+                        {
+                            IslandIndex = islandIndex
+                        });
+                    }
 
                     buffer.Add(new FleetShipBuffer { ShipEntity = shipEntity });
                 }

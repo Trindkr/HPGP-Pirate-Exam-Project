@@ -40,7 +40,7 @@ namespace Systems
                 islandSeeker.IslandIndex = (islandSeeker.IslandIndex + 1) % Islands.Length;
             }
 
-            navigation.DesiredDirection += math.normalize(offset) * 15f;
+            navigation.DesiredDirection += math.normalize(offset) * 1f;
         }
     }
 }
