@@ -27,6 +27,8 @@ namespace Systems
         
         public void Execute(ref LocalTransform transform, ref LinearMotion motion, ref Navigation navigation)
         {
+            // Debug.DrawLine(transform.Position, transform.Position + navigation.DesiredDirection, Color.green);
+            
             float dot = math.dot(navigation.DesiredDirection, transform.Forward());
             navigation.DesiredMoveSpeed = math.min(navigation.DesiredMoveSpeed, motion.MaxSpeed) * math.max(dot, 0f);
         
