@@ -3,7 +3,6 @@ using Components;
 using Components.Enum;
 using Components.Fleet;
 using Model;
-using Systems.Helpers;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -24,7 +23,8 @@ namespace Systems.Fleet
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var spawner in SystemAPI.Query<RefRO<FleetSpawner>>())
             {
-                for (int i = 0; i < spawner.ValueRO.PirateShipAmount; i++)
+                int pirateFleetAmount = spawner.ValueRO.PirateShipAmount / spawner.ValueRO.PirateShipsPerFleet;
+                for (int i = 0; i < pirateFleetAmount; i++)
                 {
                     var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
                     SpawnFleet(
@@ -39,7 +39,8 @@ namespace Systems.Fleet
                         i % 5);
                 }
                 
-                for (int i = 0; i < spawner.ValueRO.MerchantShipAmount; i++)
+                int merchantFleetAmount = spawner.ValueRO.MerchantShipAmount / spawner.ValueRO.MerchantShipsPerFleet;
+                for (int i = 0; i < merchantFleetAmount; i++)
                 {
                     var offset = RandomPointOnUnitCircle(ref random) * (i+1) * 30;
                     SpawnFleet(

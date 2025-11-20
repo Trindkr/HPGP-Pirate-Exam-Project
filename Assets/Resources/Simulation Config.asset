@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fc33ad5354f46149df5a4202f1aed7e, type: 3}
   m_Name: Simulation Config
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
-  NumberOfPirateShips: 100
-  NumberOfMerchantShips: 100
-  NumberOfMerchantFleets: 10
-  NumberOfPirateFleets: 10
+  _shipAmountOptions: 1000
+  FleetSize: 10
   SailingConstraints:
     MaxAngularAcceleration: 0.5
     MaxAngularSpeed: 1
