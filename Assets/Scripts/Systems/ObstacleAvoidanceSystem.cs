@@ -20,21 +20,21 @@ namespace Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            var collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-            float viewDistance = 10f;
-            float collisionSphereRadius = 4f;
-
-            var fleetMemberLookup = SystemAPI.GetComponentLookup<FleetMember>();
-
-            ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob
-            {
-                CollisionWorld = collisionWorld,
-                AvoidanceForce = 3f,
-                ViewDistance = viewDistance,
-                CollisionSphereRadius = collisionSphereRadius,
-                FleetMemberLookup = fleetMemberLookup,
-            };
-            state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
+            // var collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
+            // float viewDistance = 10f;
+            // float collisionSphereRadius = 4f;
+            //
+            // var fleetMemberLookup = SystemAPI.GetComponentLookup<FleetMember>();
+            //
+            // ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob
+            // {
+            //     CollisionWorld = collisionWorld,
+            //     AvoidanceForce = 3f,
+            //     ViewDistance = viewDistance,
+            //     CollisionSphereRadius = collisionSphereRadius,
+            //     FleetMemberLookup = fleetMemberLookup,
+            // };
+            // state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
         }
 
         [WithNone(typeof(Sinking))]
