@@ -13,53 +13,52 @@ namespace Systems
     [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingSystem))]
     public partial struct ObstacleSeparationSystem : ISystem
     {
-        private NativeArray<Entity> _ships;
+        private EntityQuery _query;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            _ships =
+            _query =
                 SystemAPI.QueryBuilder()
                     .WithAll<Ship>()
                     .WithNone<Sinking>()
-                    .WithAll<LocalTransform>()
-                    .Build().ToEntityArray(Allocator.Persistent);
-
+                    .WithAll<LocalTransform>().Build();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
+            var ships = _query.ToEntityArray(Allocator.TempJob);
             var job = new ObstacleSeparationJob
             {
-                Ships = _ships,
+                Ships = ships,
                 ShipTransformLookup = transformLookup
             };
             state.Dependency = job.ScheduleParallel(state.Dependency);
+            state.Dependency.Complete();
+            ships.Dispose();
         }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
-            if (_ships.IsCreated)
-            {
-                _ships.Dispose();
-            }
+            _query.Dispose();
         }
     }
     
     [BurstCompile]
+    [WithNone(typeof(Sinking))]
     public partial struct ObstacleSeparationJob : IJobEntity
     {
         [ReadOnly] public NativeArray<Entity> Ships;
         [ReadOnly] public ComponentLookup<LocalTransform> ShipTransformLookup;
         
-        public void Execute(in Entity entity, in LocalTransform transform, in Ship ship, ref Navigation navigation)
+        public void Execute([ChunkIndexInQuery] int chunkIndex, in Entity entity, in LocalTransform transform, in Ship ship, ref Navigation navigation)
         {
             float3 separationForce = float3.zero;
             int neighborCount = 0;
-
+            
             foreach (Entity otherShipEntity in Ships)
             {
                 if (otherShipEntity == entity)
@@ -69,10 +68,10 @@ namespace Systems
                 float3 toOther = otherTransform.Position - transform.Position;
                 float distance = math.length(toOther);
 
-                float separationDistance = 5f; // Minimum desired separation distance
-                if (distance < separationDistance && distance > 0f)
+                const float separationDistance = 10f;
+                if (distance is < separationDistance and > 0f)
                 {
-                    separationForce -= math.normalize(toOther) / distance;
+                    separationForce -= math.normalize(toOther) * (1f / distance);
                     neighborCount++;
                 }
             }
@@ -81,7 +80,9 @@ namespace Systems
             if (neighborCount > 0)
             {
                 separationForce /= neighborCount;
-                navigation.DesiredDirection += math.normalize(separationForce) * 10f; // Weight the force
+                var result = math.normalize(separationForce) * 100f;
+                Debug.DrawLine(transform.Position, transform.Position + result, Color.magenta);
+                navigation.DesiredDirection += result; 
             }
         }
     }
