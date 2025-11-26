@@ -36,9 +36,7 @@ namespace Systems
             // baglæns i forhold til desired direction, bliver dot < 0, og med math.max(dot, 0f)
             // blev hastigheden sat til 0. 
             //
-            // Da skibet dermed ikke bevægede sig, kunne det heller ikke nå at dreje korrekt,
-            // og resultatet var, at det blev "låst" helt stille.
-            //
+            // Men hvorfor roterer de ikke hen imod desired direction først? TODO: kig på turn system?
 
             //navigation.DesiredMoveSpeed = math.min(navigation.DesiredMoveSpeed, motion.MaxSpeed) * math.max(dot, 0f);
 
