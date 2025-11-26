@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 namespace Systems
@@ -26,19 +27,27 @@ namespace Systems
                 LocalTransformLookup = transformLookup
             };
             state.Dependency = targetJob.ScheduleParallel(state.Dependency);
+
         }
         
         [BurstCompile]
         public partial struct MerchantTargetJob : IJobEntity
         {
             [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
-            public void Execute(in LocalTransform localTransform,  in MerchantSeeker merchantSeeker, ref Navigation navigation)
+            public void Execute(in LocalTransform localTransform, in MerchantSeeker merchantSeeker, ref Navigation navigation)
             {
+                if (!LocalTransformLookup.HasComponent(merchantSeeker.Target))
+                {
+                    //Debug.DrawRay(localTransform.Position, new float3(0, 50, 0), Color.red);
+                    return;
+                }
+
                 var merchantTargetPosition = LocalTransformLookup[merchantSeeker.Target].Position;
-                
+
                 var targetDirection = merchantTargetPosition - localTransform.Position;
                 navigation.DesiredDirection += math.normalize(targetDirection) * 100f;
             }
+
         }
 
         [BurstCompile]
