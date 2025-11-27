@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Components.Fleet;
 using Model;
 using Systems.Helpers;
@@ -14,6 +15,7 @@ namespace Systems.Fleet
     {
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<FlockingConfigurationSingleton>();
         }
 
@@ -26,15 +28,28 @@ namespace Systems.Fleet
                 LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
                 FlockingConfiguration = flockingConfiguration,
             };
-            state.Dependency = job.ScheduleParallel(state.Dependency);
+            
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
    }
 
     [BurstCompile]
     [WithNone(typeof(Sinking))]
-    //TODO: måske skal sinking skibe også fjernes fra flocking, så skibe ikke flocker med sunkne skibe?
+    //TODO: mï¿½ske skal sinking skibe ogsï¿½ fjernes fra flocking, sï¿½ skibe ikke flocker med sunkne skibe?
     // PT. flocker de levende skibe stadig med de sunkne skibe, selvom sunkne skibe ikke flocker (har ingen desired speed/direction)
-    //Andre måder at håndtere det på? Vi snakkede om object pooling.
+    //Andre mï¿½der at hï¿½ndtere det pï¿½? Vi snakkede om object pooling.
     public partial struct FleetFlockingJob : IJobEntity
     {
         [ReadOnly] public BufferLookup<FleetShipBuffer> FleetShipBufferLookup;

@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Components.Fleet;
 using Systems.Fleet;
 using Unity.Collections;
@@ -15,6 +16,7 @@ namespace Systems
     {
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<PhysicsWorldSingleton>();
         }
 
@@ -26,7 +28,7 @@ namespace Systems
 
             var fleetMemberLookup = SystemAPI.GetComponentLookup<FleetMember>();
 
-            ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob
+            ObstacleAvoidanceJob job = new ObstacleAvoidanceJob
             {
                 CollisionWorld = collisionWorld,
                 AvoidanceForce = 3f,
@@ -34,7 +36,20 @@ namespace Systems
                 CollisionSphereRadius = collisionSphereRadius,
                 FleetMemberLookup = fleetMemberLookup,
             };
-            state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
+            
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
 
         [WithNone(typeof(Sinking))]

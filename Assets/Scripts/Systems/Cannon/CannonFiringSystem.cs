@@ -1,9 +1,11 @@
+using Components;
 using Components.Cannon;
 using Components.Enum;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems.Cannon
 {
@@ -14,6 +16,7 @@ namespace Systems.Cannon
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
@@ -21,6 +24,7 @@ namespace Systems.Cannon
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
+
 
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
@@ -30,8 +34,20 @@ namespace Systems.Cannon
                 DeltaTime = deltaTime,
                 EntityCommandBuffer = ecb
             };
-
-            state.Dependency = job.ScheduleParallel(state.Dependency);
+            
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
 
         [BurstCompile]

@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Systems.Fleet;
 using Unity.Burst;
 using Unity.Collections;
@@ -13,17 +14,30 @@ namespace Systems
     {
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<IslandPositionBuffer>();
         }
         
         public void OnUpdate(ref SystemState state)
         {
             var buffer = SystemAPI.GetSingletonBuffer<IslandPositionBuffer>();
-            var tradeRouteJob = new TradeRouteJob
+            var job = new TradeRouteJob
             {
                 IslandPositions = buffer
             };
-            state.Dependency = tradeRouteJob.ScheduleParallel(state.Dependency);
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -25,7 +26,7 @@ namespace Systems.Cannon
         {
             var simulation = SystemAPI.GetSingleton<SimulationSingleton>();
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-
+        
             var job = new CannonballCollisionJob
             {
                 CannonballLookup = SystemAPI.GetComponentLookup<CannonballTag>(true),

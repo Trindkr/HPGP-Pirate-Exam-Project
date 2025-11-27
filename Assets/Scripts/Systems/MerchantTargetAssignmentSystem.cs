@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Components;
+using Components.Enum;
 using Components.Fleet;
 using Components.Tags;
 using Unity.Burst;
@@ -18,6 +19,7 @@ namespace Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
         }
 
         [BurstCompile]
@@ -45,15 +47,26 @@ namespace Systems
                 SinkingLookup = sinkingLookup,
                 EntityCommandBuffer = ecb.AsParallelWriter()
             };
-
-            state.Dependency = job.ScheduleParallel(state.Dependency);
-            state.Dependency.Complete();
             
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+                state.Dependency.Complete();
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+                state.Dependency.Complete();
+            }
+
             ecb.Playback(state.EntityManager);
-            ecb.Dispose();  
-            
+            ecb.Dispose();
             merchants.Dispose();
-
         }
 
         [BurstCompile]

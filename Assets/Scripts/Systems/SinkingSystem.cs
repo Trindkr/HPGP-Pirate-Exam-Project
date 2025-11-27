@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -12,6 +13,12 @@ namespace Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct SinkingSystem : ISystem
     {
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
+            state.RequireForUpdate<JobModeSingleton>();
+        }
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -26,7 +33,19 @@ namespace Systems
                 ECB = ecb
             };
 
-            state.Dependency = job.ScheduleParallel(state.Dependency);
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
 
         [BurstCompile]

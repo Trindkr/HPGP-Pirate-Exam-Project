@@ -1,3 +1,4 @@
+using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -21,6 +22,7 @@ namespace Systems.Cannon
 
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<PhysicsWorldSingleton>();
 
             _pirateLayerMask = 1u << LayerMask.NameToLayer("Pirate");
@@ -39,7 +41,19 @@ namespace Systems.Cannon
                 RaycastYOffset = new float3(0, 0.5f, 0)
             };
 
-            state.Dependency = job.ScheduleParallel(state.Dependency);
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
 
         [BurstCompile]

@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -15,18 +16,31 @@ namespace Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            
+            state.RequireForUpdate<JobModeSingleton>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
-            var targetJob = new MerchantTargetJob()
+            var job = new MerchantTargetJob()
             {
                 LocalTransformLookup = transformLookup
             };
-            state.Dependency = targetJob.ScheduleParallel(state.Dependency);
+            
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
 
         }
         
