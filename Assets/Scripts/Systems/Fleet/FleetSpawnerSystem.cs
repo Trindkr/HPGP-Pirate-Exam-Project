@@ -92,12 +92,16 @@ namespace Systems.Fleet
                 ecb.AddComponent<Pirate>(fleetEntity);
             }
 
-            var xAmount = (uint)math.round(math.sqrt(fleetSize));
+            var xAmount = (int)math.ceil(math.sqrt(fleetSize));
             var zAmount = xAmount;
             for (int z = 0; z < zAmount; z++)
             {
                 for (int x = 0; x < xAmount; x++)
                 {
+                    var currentShipIndex = z * zAmount + x;
+                    if (currentShipIndex >= fleetSize)
+                        return;
+                    
                     var position = new float3(x * 10 + x * z / 3f + offset.x, 0,
                         z * 10 + z * x / 2f + offset.y);
                     var shipEntity = ShipSpawnerHelper.AddDefaultShipComponents(
