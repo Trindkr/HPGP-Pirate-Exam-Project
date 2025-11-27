@@ -27,5 +27,5 @@ MonoBehaviour:
     MinShootingAngle: 20
   FlockingConfiguration:
     CohesionStrength: 5
-    AlignmentStrength: 100
+    AlignmentStrength: 30
     SeparationStrength: 60
