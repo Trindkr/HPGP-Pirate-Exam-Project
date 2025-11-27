@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Simulation Config
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
   _shipAmountOptions: 1000
-  FleetSize: 10
+  FleetSize: 8
   SailingConstraints:
     MaxAngularAcceleration: 0.5
     MaxAngularSpeed: 1

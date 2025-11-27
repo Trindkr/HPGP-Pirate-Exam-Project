@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Authoring.IslandSpawnerAuthoring
   _islandPrefab: {fileID: 1956575182590035530, guid: f928ac6586fc71c468e748e5a236aeba, type: 3}
-  _baseRadius: 75
+  _baseRadius: 100
   _simulationConfig: {fileID: 11400000, guid: 773165f78fdcfe841a7edf510c70d4e2, type: 2}
 --- !u!1 &773470063
 GameObject:

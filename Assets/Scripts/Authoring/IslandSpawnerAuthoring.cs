@@ -16,13 +16,14 @@ namespace Authoring
         {
             public override void Bake(IslandSpawnerAuthoring authoring)
             {
-                var radiusScaler = math.log(authoring._simulationConfig.ShipAmount);
+                var radiusMultiplier = math.log10(authoring._simulationConfig.ShipAmount);
+                Debug.Log(radiusMultiplier);
                 Entity entity = GetEntity(authoring, TransformUsageFlags.None);
                 AddComponent(entity, new IslandSpawner
                 {
-                    IslandAmount = 5,
+                    IslandAmount = (int) math.floor(2 * radiusMultiplier),
                     IslandPrefab = GetEntity(authoring._islandPrefab, TransformUsageFlags.WorldSpace),
-                    Radius = authoring._baseRadius * radiusScaler,
+                    Radius = authoring._baseRadius * radiusMultiplier * 2f,
                 });
             }
         }
