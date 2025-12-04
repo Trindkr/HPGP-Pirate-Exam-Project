@@ -70,9 +70,6 @@ namespace Systems.Cannon
                         HandleHit(ref ecb, entityB, entityA);
                     }
                 }
-
-                ecb.Playback(state.EntityManager);
-                ecb.Dispose();
             }
                 
         }

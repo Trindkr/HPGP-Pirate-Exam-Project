@@ -11,13 +11,13 @@ using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
-    [BurstCompile]
+    // [BurstCompile]
     [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingSystem))]
     public partial struct ObstacleSeparationSystem : ISystem
     {
         private EntityQuery _query;
 
-        [BurstCompile]
+        // [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<JobModeSingleton>();
@@ -28,7 +28,7 @@ namespace Systems
                     .WithAll<LocalTransform>().Build();
         }
 
-        [BurstCompile]
+        // [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
@@ -89,15 +89,9 @@ namespace Systems
             }
             ships.Dispose();
         }
-
-        [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-            _query.Dispose();
-        }
     }
     
-    [BurstCompile]
+    // [BurstCompile]
     [WithAll(typeof(Ship))]
     [WithNone(typeof(Sinking))]
     public partial struct ObstacleSeparationJob : IJobEntity
