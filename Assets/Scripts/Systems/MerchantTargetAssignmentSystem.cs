@@ -37,7 +37,7 @@ namespace Systems
             var merchantSeekerLookup = SystemAPI.GetComponentLookup<MerchantSeeker>(true);
             var sinkingLookup = SystemAPI.GetComponentLookup<Sinking>(true);
             
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            var ecbParallel = new EntityCommandBuffer(Allocator.TempJob);
 
             var job = new TargetAssigningJob()
             {
@@ -45,13 +45,39 @@ namespace Systems
                 FleetShipBufferLookup = pirateShipBuffer,
                 MerchantSeekerLookup = merchantSeekerLookup,
                 SinkingLookup = sinkingLookup,
-                EntityCommandBuffer = ecb.AsParallelWriter()
+                EntityCommandBuffer = ecbParallel.AsParallelWriter()
             };
             
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                var ecb = new EntityCommandBuffer(Allocator.Temp);
+                
+                foreach (var (_, _, pirateFleetEntity) in SystemAPI.Query<RefRO<Components.Fleet.Fleet>, RefRO<Pirate>>().WithEntityAccess())
+                {
+                    var ships = pirateShipBuffer[pirateFleetEntity].AsNativeArray();
+                    foreach (var ship in ships)
+                    {
+                        var shipEntity = ship.ShipEntity;
+                        if (merchantSeekerLookup.HasComponent(shipEntity))
+                        {
+                            var merchantSeeker = merchantSeekerLookup[shipEntity];
+
+                            var hasValidTarget = !sinkingLookup.HasComponent(merchantSeeker.Target) &&
+                                                 merchantSeeker.Target != default;
+                            if (hasValidTarget)
+                            {
+                                return;
+                            }
+
+                            var newTargetIndex = (pirateFleetEntity.Index * OffsetMultiplier) % merchants.Length;
+
+                            ecb.SetComponent(shipEntity, new MerchantSeeker() { Target = merchants[newTargetIndex] });
+                        }
+                    }
+
+                    ships.Dispose();
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -64,8 +90,8 @@ namespace Systems
                 state.Dependency.Complete();
             }
 
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
+            ecbParallel.Playback(state.EntityManager);
+            ecbParallel.Dispose();
             merchants.Dispose();
         }
 
