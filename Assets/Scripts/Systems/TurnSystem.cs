@@ -12,7 +12,7 @@ using UnityEngine.SocialPlatforms;
 namespace Systems
 {
     [BurstCompile]
-    [UpdateAfter(typeof(SinkingSystem))]
+    [UpdateAfter(typeof(SinkingSystem)), UpdateAfter(typeof(MerchantTargetRouteSystem))]
     public partial struct TurnSystem : ISystem
     {
         public void OnCreate(ref SystemState state)

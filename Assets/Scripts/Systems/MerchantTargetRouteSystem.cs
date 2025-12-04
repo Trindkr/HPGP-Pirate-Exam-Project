@@ -10,7 +10,7 @@ using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
-    [UpdateAfter(typeof(MerchantTargetAssignmentSystem)), UpdateBefore(typeof(MoveSystem))]
+    [UpdateAfter(typeof(MerchantTargetAssignmentSystem))]
     public partial struct MerchantTargetRouteSystem : ISystem
     {
         //[BurstCompile]
