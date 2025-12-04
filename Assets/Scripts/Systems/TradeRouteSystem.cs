@@ -29,7 +29,18 @@ namespace Systems
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                foreach (var (transform, islandSeeker, navigation) in SystemAPI.Query<RefRO<LocalTransform>, RefRW<IslandSeeker>, RefRW<Navigation>>())
+                {
+                    var targetIsland = buffer[islandSeeker.ValueRW.IslandIndex].Position;
+                    //Debug.DrawLine(transform.Position, targetIsland, Color.cyan);
+                    var offset = targetIsland - transform.ValueRO.Position;
+                    if (math.length(offset) < 70)
+                    {
+                        islandSeeker.ValueRW.IslandIndex = (islandSeeker.ValueRW.IslandIndex + 1) % buffer.Length;
+                    }
+
+                    navigation.ValueRW.DesiredDirection += math.normalize(offset) * 10f;
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {

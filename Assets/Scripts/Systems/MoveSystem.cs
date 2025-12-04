@@ -17,15 +17,30 @@ namespace Systems
 
         public void OnUpdate(ref SystemState state)
         {
+            var deltaTime = SystemAPI.Time.DeltaTime;
             var job = new MoveJob
             {
-                DeltaTime = SystemAPI.Time.DeltaTime
+                DeltaTime = deltaTime
             };
             
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                foreach (var (transform, motion, navigation) 
+                         in SystemAPI.Query<RefRW<LocalTransform>, RefRW<LinearMotion>, RefRW<Navigation>>())
+                {
+                    float dot = math.dot(navigation.ValueRO.DesiredDirection, transform.ValueRO.Forward());
+                    var normalizedDot = (dot + 1) * 0.5f;
+                    float forwardFactor = math.max(normalizedDot, 0.1f);
+
+                    navigation.ValueRW.DesiredMoveSpeed =
+                        math.min(navigation.ValueRO.DesiredMoveSpeed, motion.ValueRO.MaxSpeed)
+                        * forwardFactor;
+
+                    float desiredAcceleration = math.clamp(navigation.ValueRO.DesiredMoveSpeed - motion.ValueRO.Speed, -motion.ValueRO.MaxAcceleration, motion.ValueRO.MaxAcceleration);
+                    motion.ValueRW.Speed = math.min(motion.ValueRO.Speed + desiredAcceleration * deltaTime, motion.ValueRO.MaxSpeed);
+                    transform.ValueRW.Position += transform.ValueRO.Forward() * motion.ValueRO.Speed * deltaTime;
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
