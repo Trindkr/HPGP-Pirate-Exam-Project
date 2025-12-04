@@ -8,8 +8,7 @@ namespace ScriptableObjects
     {
         _1000 = 1000,
         _10000 = 10000,
-        _100000 = 100000,
-        _1000000 = 1000000
+        _20000 = 20000,
     }
     
     [CreateAssetMenu(fileName = "Simulation Config")]
