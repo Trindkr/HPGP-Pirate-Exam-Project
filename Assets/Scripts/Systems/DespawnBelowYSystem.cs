@@ -29,6 +29,7 @@ namespace Systems
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
+                state.Dependency.Complete();
                 var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
                 
                 foreach (var (despawnBelowYLevel, localTransform, entity)  in SystemAPI.Query<RefRW<DespawnBelowYLevel>, RefRO<LocalTransform>>().WithEntityAccess())

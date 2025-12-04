@@ -10,6 +10,7 @@ using UnityEngine;
 namespace Systems.Cannon
 {
     //[BurstCompile]
+    [UpdateAfter(typeof(CannonTargetingSystem))]
     public partial struct CannonFiringSystem : ISystem
     {
         //[BurstCompile]
@@ -41,16 +42,20 @@ namespace Systems.Cannon
                 var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
                 foreach (
                     var (cannonConstraints, shipTransform, cannonballPrefab)
-                    in SystemAPI.Query<RefRW<CannonConstraints>, RefRW<LocalTransform>, RefRO<CannonballPrefab>>())
+                    in SystemAPI.Query<RefRW<CannonConstraints>, RefRO<LocalTransform>, RefRO<CannonballPrefab>>())
                 {
                     cannonConstraints.ValueRW.ReloadTimer -= deltaTime;
-                    if (cannonConstraints.ValueRO.ReloadTimer > 0f)
-                        return;
+                    //Debug.Log("Reloadtimer: " + cannonConstraints.ValueRO.ReloadTimer+", Deltatime:"+deltaTime);
+                    
+                     if (cannonConstraints.ValueRO.ReloadTimer > 0f)
+                         return;
+                    //Debug.Log("Has no reload time.");
 
-                    if (cannonConstraints.ValueRO.ShootingDirection == ShootingDirection.None)
-                        return;
-                    Debug.Log("Has shooting direction");
-
+                     if (cannonConstraints.ValueRO.ShootingDirection == ShootingDirection.None)
+                         return;
+                     //Debug.Log("Has shooting direction");
+                    
+                    //cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Left;
                     var cannonball = ecb.Instantiate(cannonballPrefab.ValueRO.Prefab);
 
                     var right = math.normalize(math.cross(shipTransform.ValueRO.Up(), shipTransform.ValueRO.Forward()));
@@ -105,7 +110,7 @@ namespace Systems.Cannon
             private void Execute(
                 [ChunkIndexInQuery] int chunkIndex,
                 ref CannonConstraints cannonConstraints,
-                ref LocalTransform shipTransform,
+                in LocalTransform shipTransform,
                 in CannonballPrefab cannonballPrefab)
             {
                 cannonConstraints.ReloadTimer -= DeltaTime;

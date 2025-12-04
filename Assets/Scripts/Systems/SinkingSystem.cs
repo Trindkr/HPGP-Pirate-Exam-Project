@@ -35,6 +35,7 @@ namespace Systems
             
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
+                state.Dependency.Complete();
                 var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
                 foreach (var (navigation, localTransform, sinking, entity) in SystemAPI.Query<RefRW<Navigation>, RefRW<LocalTransform>, RefRO<Sinking>>().WithEntityAccess())
                 {

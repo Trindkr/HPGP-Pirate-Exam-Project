@@ -45,6 +45,8 @@ namespace Systems.Cannon
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
+                state.Dependency.Complete();
+                
                 foreach (
                     var (cannonConstraints, localTransform, faction) 
                          in SystemAPI.Query<RefRW<CannonConstraints>, RefRO<LocalTransform>, RefRO<Faction>>())
@@ -55,7 +57,7 @@ namespace Systems.Cannon
                     float range = cannonConstraints.ValueRO.ShootingRange;
 
                     uint targetMask = faction.ValueRO.Value == FactionType.Pirate ? _merchantLayerMask : _pirateLayerMask;
-                    float tolerance = range * 0.8f;
+                    float tolerance = range * 0f;
 
                     var filter = new CollisionFilter
                     {
@@ -77,7 +79,7 @@ namespace Systems.Cannon
                     if (physicsWorld.CollisionWorld.CastRay(rightRay, out RaycastHit hitRight))
                     {
     #if UNITY_EDITOR
-                        // Debug.DrawLine(start, hitRight.Position, Color.green);
+                        Debug.DrawLine(start, hitRight.Position, Color.green);
     #endif
                         float hitDistance = math.distance(hitRight.Position, start);
                         if (hitDistance >= tolerance)
@@ -87,10 +89,10 @@ namespace Systems.Cannon
                         }
                     }
     #if UNITY_EDITOR
-                    // else
-                    // {
-                    //     Debug.DrawLine(start, start + right * range, Color.red);
-                    // }
+                    else
+                    {
+                        Debug.DrawLine(start, start + right * range, Color.red);
+                    }
     #endif
 
                     if (foundTarget)
@@ -107,20 +109,21 @@ namespace Systems.Cannon
                     if (physicsWorld.CollisionWorld.CastRay(leftRay, out RaycastHit hitLeft))
                     {
     #if UNITY_EDITOR
-                        // Debug.DrawLine(start, hitLeft.Position, Color.green);
+                         Debug.DrawLine(start, hitLeft.Position, Color.green);
     #endif
                         float hitDistance = math.distance(hitLeft.Position, start);
                         if (hitDistance >= tolerance)
                         {
+                            Debug.Log("CannonTargetingSystem: Target found");
                             cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Left;
                             foundTarget = true;
                         }
                     }
     #if UNITY_EDITOR
-                    // else
-                    // {
-                    //     Debug.DrawLine(start, start + left * range, Color.red);
-                    // }
+                    else
+                    {
+                        Debug.DrawLine(start, start + left * range, Color.red);
+                    }
     #endif
 
                     if (!foundTarget)

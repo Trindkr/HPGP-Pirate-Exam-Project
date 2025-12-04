@@ -35,6 +35,7 @@ namespace Systems.Fleet
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
+                state.Dependency.Complete();
                 foreach (var (navigation, fleetMember, entity) in SystemAPI
                              .Query<RefRW<Navigation>, RefRO<FleetMember>>().WithEntityAccess())
                 {
