@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems
 {
@@ -48,13 +49,14 @@ namespace Systems
         public void Execute(in LocalTransform transform, ref IslandSeeker islandSeeker, ref Navigation navigation)
         {
             var targetIsland = IslandPositions[islandSeeker.IslandIndex].Position;
+            //Debug.DrawLine(transform.Position, targetIsland, Color.cyan);
             var offset = targetIsland - transform.Position;
             if (math.length(offset) < 70)
             {
                 islandSeeker.IslandIndex = (islandSeeker.IslandIndex + 1) % IslandPositions.Length;
             }
 
-            navigation.DesiredDirection += math.normalize(offset) * 1f;
+            navigation.DesiredDirection += math.normalize(offset) * 10f;
         }
     }
 }

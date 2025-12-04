@@ -17,7 +17,6 @@ namespace Authoring
             public override void Bake(IslandSpawnerAuthoring authoring)
             {
                 var radiusMultiplier = math.log10(authoring._simulationConfig.ShipAmount);
-                Debug.Log(radiusMultiplier);
                 Entity entity = GetEntity(authoring, TransformUsageFlags.None);
                 AddComponent(entity, new IslandSpawner
                 {

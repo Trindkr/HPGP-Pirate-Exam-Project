@@ -10,7 +10,7 @@ using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
-    [UpdateAfter(typeof(MerchantTargetAssignmentSystem))]
+    [UpdateAfter(typeof(MerchantTargetAssignmentSystem)), UpdateBefore(typeof(MoveSystem))]
     public partial struct MerchantTargetRouteSystem : ISystem
     {
         [BurstCompile]
@@ -59,7 +59,9 @@ namespace Systems
                 var merchantTargetPosition = LocalTransformLookup[merchantSeeker.Target].Position;
 
                 var targetDirection = merchantTargetPosition - localTransform.Position;
-                navigation.DesiredDirection += math.normalize(targetDirection) * 100f;
+                navigation.DesiredDirection += math.normalize(targetDirection) * 10f;
+                
+                //Debug.DrawLine(localTransform.Position, merchantTargetPosition, Color.green);
             }
 
         }
