@@ -1,4 +1,5 @@
 using Components;
+using Components.Enum;
 using Components.Fleet;
 using Systems.Fleet;
 using Unity.Collections;
@@ -15,26 +16,40 @@ namespace Systems
     {
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<PhysicsWorldSingleton>();
         }
 
         public void OnUpdate(ref SystemState state)
         {
-            // var collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-            // float viewDistance = 10f;
-            // float collisionSphereRadius = 4f;
-            //
-            // var fleetMemberLookup = SystemAPI.GetComponentLookup<FleetMember>();
-            //
-            // ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob
-            // {
-            //     CollisionWorld = collisionWorld,
-            //     AvoidanceForce = 3f,
-            //     ViewDistance = viewDistance,
-            //     CollisionSphereRadius = collisionSphereRadius,
-            //     FleetMemberLookup = fleetMemberLookup,
-            // };
-            // state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
+            var collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
+            float viewDistance = 10f;
+            float collisionSphereRadius = 4f;
+
+            var fleetMemberLookup = SystemAPI.GetComponentLookup<FleetMember>();
+
+            ObstacleAvoidanceJob job = new ObstacleAvoidanceJob
+            {
+                CollisionWorld = collisionWorld,
+                AvoidanceForce = 3f,
+                ViewDistance = viewDistance,
+                CollisionSphereRadius = collisionSphereRadius,
+                FleetMemberLookup = fleetMemberLookup,
+            };
+            
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
         }
 
         [WithNone(typeof(Sinking))]

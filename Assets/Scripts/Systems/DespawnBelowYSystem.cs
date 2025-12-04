@@ -1,3 +1,5 @@
+using Components;
+using Components.Enum;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -7,6 +9,12 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial struct DespawnBelowYSystem : ISystem
 {
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<JobModeSingleton>();
+        state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -18,7 +26,19 @@ public partial struct DespawnBelowYSystem : ISystem
             EntityCommandBuffer = ecb
         };
 
-        job.ScheduleParallel();
+        var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+        if (jobModeSingleton.JobMode == JobMode.Run)
+        {
+            job.Run();
+        }
+        else if (jobModeSingleton.JobMode == JobMode.Schedule)
+        {
+            state.Dependency = job.Schedule(state.Dependency);
+        }
+        else
+        {
+            state.Dependency = job.ScheduleParallel(state.Dependency);
+        }
     }
 
     [BurstCompile]

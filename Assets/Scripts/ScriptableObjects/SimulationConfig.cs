@@ -1,3 +1,4 @@
+using Components.Enum;
 using Model;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace ScriptableObjects
     {
         [SerializeField] private ShipAmountOptions _shipAmountOptions;
         public int ShipAmount => (int) _shipAmountOptions;
+        public JobMode JobMode;
         [Range(1, 100)]
         public int FleetSize = 15;
         public SailingConstraints  SailingConstraints;

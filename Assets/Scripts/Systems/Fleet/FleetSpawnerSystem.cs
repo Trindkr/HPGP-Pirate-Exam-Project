@@ -24,10 +24,11 @@ namespace Systems.Fleet
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var spawner in SystemAPI.Query<RefRO<FleetSpawner>>())
             {
+                float k = 30f;
                 int merchantFleetAmount = spawner.ValueRO.MerchantShipAmount/spawner.ValueRO.MerchantShipsPerFleet;
                 for (int i = 0; i < merchantFleetAmount; i++)
                 {
-                    var offset = RandomPointOnUnitCircle(ref random) * (i + 1) * 30;
+                    var offset = RandomPointOnUnitCircle(ref random) * i * k / math.pow(i+1f, 0.5f);
                     SpawnFleet(
                         ref ecb,
                         FactionType.Merchant,
@@ -43,7 +44,7 @@ namespace Systems.Fleet
                 int pirateFleetAmount = spawner.ValueRO.PirateShipAmount/spawner.ValueRO.PirateShipsPerFleet;
                 for (int i = 0; i < pirateFleetAmount; i++)
                 {
-                    var offset = RandomPointOnUnitCircle(ref random) * (i + 1) * 30;
+                    var offset = RandomPointOnUnitCircle(ref random) * i * k / math.pow(i+1f, 0.5f);
                     SpawnFleet(
                         ref ecb,
                         FactionType.Pirate,
@@ -92,14 +93,18 @@ namespace Systems.Fleet
                 ecb.AddComponent<Pirate>(fleetEntity);
             }
 
-            var xAmount = (uint)math.round(math.sqrt(fleetSize));
+            var xAmount = (int)math.ceil(math.sqrt(fleetSize));
             var zAmount = xAmount;
             for (int z = 0; z < zAmount; z++)
             {
                 for (int x = 0; x < xAmount; x++)
                 {
-                    var position = new float3(x * 10 + x * z / 3f + offset.x, 0,
-                        z * 10 + z * x / 2f + offset.y);
+                    var currentShipIndex = z * zAmount + x;
+                    if (currentShipIndex >= fleetSize)
+                        return;
+                    var position = new float3(x * 10 + x * z + offset.x, 0,
+                        z * 10 + z * x + offset.y);
+                    
                     var shipEntity = ShipSpawnerHelper.AddDefaultShipComponents(
                         ref ecb,
                         shipPrefab,

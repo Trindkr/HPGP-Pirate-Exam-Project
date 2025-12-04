@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Simulation Config
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.SimulationConfig
   _shipAmountOptions: 1000
-  FleetSize: 10
+  JobMode: 2
+  FleetSize: 8
   SailingConstraints:
     MaxAngularAcceleration: 0.5
     MaxAngularSpeed: 1
@@ -26,6 +27,6 @@ MonoBehaviour:
     MaxShootingAngle: 40
     MinShootingAngle: 20
   FlockingConfiguration:
-    CohesionStrength: 1
-    AlignmentStrength: 100
+    CohesionStrength: 5
+    AlignmentStrength: 30
     SeparationStrength: 60
