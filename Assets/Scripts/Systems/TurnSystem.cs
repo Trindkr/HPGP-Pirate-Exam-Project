@@ -3,9 +3,11 @@ using Components;
 using Components.Enum;
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
@@ -19,14 +21,24 @@ namespace Systems
 
         public void OnUpdate(ref SystemState state)
         {
+            
+            float deltaTime = SystemAPI.Time.DeltaTime;
             var job = new TurnJob
             {
-                DeltaTime = SystemAPI.Time.DeltaTime
+                DeltaTime = deltaTime,
             };
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                foreach (var(  transform,  angularMotion, navigation ) 
+                         in SystemAPI.Query<RefRW<LocalTransform>, RefRW<AngularMotion>, RefRO<Navigation>>())
+                {
+                    if (math.lengthsq(navigation.ValueRO.DesiredDirection) < 0.0001f) return;
+            
+                    var acceleration = TurnHelpers.GetAcceleration(transform.ValueRW, angularMotion.ValueRW, navigation.ValueRO);
+                    angularMotion.ValueRW = TurnHelpers.ApplyAcceleration(angularMotion.ValueRW, acceleration, deltaTime);
+                    transform.ValueRW = transform.ValueRO.RotateY(angularMotion.ValueRO.Speed * deltaTime);
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -38,7 +50,7 @@ namespace Systems
             }
         }
     }
-
+    
     //[BurstCompile]
     public partial struct TurnJob : IJobEntity
     {
@@ -48,22 +60,25 @@ namespace Systems
         {
             if (math.lengthsq(navigation.DesiredDirection) < 0.0001f) return;
             
-            var acceleration = GetAcceleration(transform, angularMotion, navigation);
-            angularMotion = ApplyAcceleration(angularMotion, acceleration);
+            var acceleration = TurnHelpers.GetAcceleration(transform, angularMotion, navigation);
+            angularMotion = TurnHelpers.ApplyAcceleration(angularMotion, acceleration,  DeltaTime);
             transform = transform.RotateY(angularMotion.Speed * DeltaTime);
             // apply angular damping?
         }
+    }
 
+    public static class TurnHelpers
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AngularMotion ApplyAcceleration(AngularMotion angularMotion, float acceleration)
+        public static AngularMotion ApplyAcceleration(AngularMotion angularMotion, float acceleration, float deltaTime)
         {
-            angularMotion.Speed = math.clamp(angularMotion.Speed + acceleration * DeltaTime, -angularMotion.MaxSpeed, angularMotion.MaxSpeed);
+            angularMotion.Speed = math.clamp(angularMotion.Speed + acceleration * deltaTime, -angularMotion.MaxSpeed, angularMotion.MaxSpeed);
             return angularMotion;
         }
 
         //[BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float GetAcceleration(in LocalTransform transform, in AngularMotion motion, in Navigation navigation)
+        public static float GetAcceleration(in LocalTransform transform, in AngularMotion motion, in Navigation navigation)
         {
             float2 forward = transform.Forward().xz;
             float2 target = math.normalize(navigation.DesiredDirection).xz;
@@ -79,7 +94,7 @@ namespace Systems
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float AngleBetweenDegrees(float3 a, float3 b)
+        public static float AngleBetweenDegrees(float3 a, float3 b)
         {
             if (math.lengthsq(b) == 0f)
             {
@@ -93,7 +108,7 @@ namespace Systems
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float AngleBetweenRadians(float3 a, float3 b)
+        public static float AngleBetweenRadians(float3 a, float3 b)
         {
             float3 na = math.normalize(a);
             float3 nb = math.normalize(b);
