@@ -9,8 +9,6 @@ using Unity.Transforms;
 namespace Systems
 {
     //[BurstCompile]
-    [UpdateBefore(typeof(TurnSystem))]
-    [UpdateBefore(typeof(MoveSystem))]
     public partial struct SinkingSystem : ISystem
     {
         public void OnCreate(ref SystemState state)

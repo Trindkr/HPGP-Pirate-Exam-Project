@@ -8,6 +8,7 @@ using Unity.Transforms;
 namespace Systems
 {
     //[BurstCompile]
+    [UpdateAfter(typeof(TurnSystem))]
     public partial struct MoveSystem : ISystem
     {
         public void OnCreate(ref SystemState state)

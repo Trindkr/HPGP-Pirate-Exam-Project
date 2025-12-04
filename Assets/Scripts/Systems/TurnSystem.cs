@@ -11,7 +11,8 @@ using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
-    [BurstCompile, UpdateBefore(typeof(MoveSystem))]
+    [BurstCompile]
+    [UpdateAfter(typeof(SinkingSystem))]
     public partial struct TurnSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
