@@ -6,39 +6,95 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Systems.Cannon
 {
     [UpdateInGroup(typeof(PhysicsSystemGroup))]
     [UpdateAfter(typeof(PhysicsSimulationGroup))]
-    [BurstCompile]
+    //[BurstCompile]
     public partial struct CannonballCollisionSystem : ISystem
     {
-        [BurstCompile]
+        //[BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<SimulationSingleton>();
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var simulation = SystemAPI.GetSingleton<SimulationSingleton>();
+            var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        
-            var job = new CannonballCollisionJob
-            {
-                CannonballLookup = SystemAPI.GetComponentLookup<CannonballTag>(true),
-                ShipLookup = SystemAPI.GetComponentLookup<Ship>(true),
-                Ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
-            };
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
 
-            state.Dependency = job.Schedule(simulation, state.Dependency);
+            if (jobModeSingleton.JobMode is JobMode.Schedule or JobMode.ScheduleParallel)
+            {
+                var job = new CannonballCollisionJob
+                {
+                    CannonballLookup = SystemAPI.GetComponentLookup<CannonballTag>(true),
+                    ShipLookup = SystemAPI.GetComponentLookup<Ship>(true),
+                    Ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
+                };
+
+                state.Dependency = job.Schedule(simulationSingleton, state.Dependency);
+            }
+
+            else if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                var simulation = simulationSingleton.AsSimulation();
+                simulation.FinalJobHandle.Complete();
+
+                var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+                foreach (var collisionEvent in simulation.CollisionEvents)
+                {
+                    Entity entityA = collisionEvent.EntityA;
+                    Entity entityB = collisionEvent.EntityB;
+
+                    bool aIsCannonball = SystemAPI.HasComponent<CannonballTag>(entityA);
+                    bool bIsCannonball = SystemAPI.HasComponent<CannonballTag>(entityB);
+
+                    bool aIsShip = SystemAPI.HasComponent<Ship>(entityA);
+                    bool bIsShip = SystemAPI.HasComponent<Ship>(entityB);
+
+                    if (aIsCannonball && bIsShip)
+                    {
+                        HandleHit(ref ecb, entityA, entityB);
+                    }
+                    else if (bIsCannonball && aIsShip)
+                    {
+                        HandleHit(ref ecb, entityB, entityA);
+                    }
+                }
+
+                ecb.Playback(state.EntityManager);
+                ecb.Dispose();
+            }
+                
         }
 
+        private static void HandleHit(ref EntityCommandBuffer ecb, Entity cannonball, Entity ship)
+        {
+            var rand = new Random((uint)(ship.Index * 7919 + cannonball.Index * 17));
 
-        [BurstCompile]
+            ecb.AddComponent(ship, new Sinking
+            {
+                SinkSpeed = 1f,
+                TiltSpeed = 20f,
+                TiltAxis = math.normalize(new float3(
+                    rand.NextFloat(-1f, 1f),
+                    0f,
+                    rand.NextFloat(-1f, 1f)))
+            });
+
+            ecb.DestroyEntity(cannonball);
+        }
+
+        //[BurstCompile]
         private struct CannonballCollisionJob : ICollisionEventsJob
         {
             [ReadOnly] public ComponentLookup<CannonballTag> CannonballLookup;

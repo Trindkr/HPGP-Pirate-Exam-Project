@@ -9,36 +9,80 @@ using UnityEngine;
 
 namespace Systems.Cannon
 {
-    [BurstCompile]
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    //[BurstCompile]
     public partial struct CannonFiringSystem : ISystem
     {
-        [BurstCompile]
+        //[BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
 
 
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-
+            var ecbParallel = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+            
             var job = new CannonFireJob
             {
                 DeltaTime = deltaTime,
-                EntityCommandBuffer = ecb
+                EntityCommandBuffer = ecbParallel
             };
+
             
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+                foreach (
+                    var (cannonConstraints, shipTransform, cannonballPrefab)
+                    in SystemAPI.Query<RefRW<CannonConstraints>, RefRW<LocalTransform>, RefRO<CannonballPrefab>>())
+                {
+                    cannonConstraints.ValueRW.ReloadTimer -= deltaTime;
+                    if (cannonConstraints.ValueRO.ReloadTimer > 0f)
+                        return;
+
+                    if (cannonConstraints.ValueRO.ShootingDirection == ShootingDirection.None)
+                        return;
+                    Debug.Log("Has shooting direction");
+
+                    var cannonball = ecb.Instantiate(cannonballPrefab.ValueRO.Prefab);
+
+                    var right = math.normalize(math.cross(shipTransform.ValueRO.Up(), shipTransform.ValueRO.Forward()));
+                    var shootDir = cannonConstraints.ValueRO.ShootingDirection switch
+                    {
+                        ShootingDirection.Left => -right,
+                        ShootingDirection.Right => right,
+                        _ => float3.zero
+                    };
+
+                    var rotationAxis = math.cross(shootDir, shipTransform.ValueRO.Up());
+                    shootDir = math.normalize(math.rotate(
+                        quaternion.AxisAngle(rotationAxis, math.radians(cannonConstraints.ValueRO.ShootingAngle)),
+                        shootDir));
+
+                    var spawnPosition = shipTransform.ValueRO.Position + (shootDir * 5f);
+
+                    ecb.SetComponent(cannonball, new LocalTransform
+                    {
+                        Position = spawnPosition,
+                        Rotation = quaternion.LookRotationSafe(shootDir, shipTransform.ValueRO.Up()),
+                        Scale = 1f
+                    });
+
+                    ecb.SetComponent(cannonball, new Unity.Physics.PhysicsVelocity
+                    {
+                        Linear = shootDir * cannonConstraints.ValueRO.ShootingForce,
+                        Angular = float3.zero
+                    });
+                
+                    cannonConstraints.ValueRW.ReloadTimer = cannonConstraints.ValueRO.ReloadTime;
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -48,19 +92,20 @@ namespace Systems.Cannon
             {
                 state.Dependency = job.ScheduleParallel(state.Dependency);
             }
+            
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public partial struct CannonFireJob : IJobEntity
         {
             public float DeltaTime;
             public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;
 
-            
-            public void Execute(
+
+            private void Execute(
                 [ChunkIndexInQuery] int chunkIndex,
                 ref CannonConstraints cannonConstraints,
-                ref LocalToWorld shipTransform,
+                ref LocalTransform shipTransform,
                 in CannonballPrefab cannonballPrefab)
             {
                 cannonConstraints.ReloadTimer -= DeltaTime;
@@ -72,7 +117,7 @@ namespace Systems.Cannon
 
                 var cannonball = EntityCommandBuffer.Instantiate(chunkIndex, cannonballPrefab.Prefab);
 
-                var right = math.normalize(math.cross(shipTransform.Up, shipTransform.Forward));
+                var right = math.normalize(math.cross(shipTransform.Up(), shipTransform.Forward()));
                 var shootDir = cannonConstraints.ShootingDirection switch
                 {
                     ShootingDirection.Left => -right,
@@ -80,7 +125,7 @@ namespace Systems.Cannon
                     _ => float3.zero
                 };
 
-                var rotationAxis = math.cross(shootDir, shipTransform.Up);
+                var rotationAxis = math.cross(shootDir, shipTransform.Up());
                 shootDir = math.normalize(math.rotate(
                     quaternion.AxisAngle(rotationAxis, math.radians(cannonConstraints.ShootingAngle)),
                     shootDir));
@@ -90,7 +135,7 @@ namespace Systems.Cannon
                 EntityCommandBuffer.SetComponent(chunkIndex, cannonball, new LocalTransform
                 {
                     Position = spawnPosition,
-                    Rotation = quaternion.LookRotationSafe(shootDir, shipTransform.Up),
+                    Rotation = quaternion.LookRotationSafe(shootDir, shipTransform.Up()),
                     Scale = 1f
                 });
 

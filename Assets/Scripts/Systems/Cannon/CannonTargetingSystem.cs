@@ -13,8 +13,7 @@ using Unity.Collections;
 
 namespace Systems.Cannon
 {
-    [BurstCompile]
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    //[BurstCompile]
     public partial struct CannonTargetingSystem : ISystem
     {
         private uint _pirateLayerMask;
@@ -29,22 +28,106 @@ namespace Systems.Cannon
             _merchantLayerMask = 1u << LayerMask.NameToLayer("Merchant");
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var raycastYOffset = new float3(0, 0.5f, 0);
+            
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
             var job = new CannonTargetingJob
             {
                 CollisionWorld = physicsWorld.CollisionWorld,
                 PirateMask = _pirateLayerMask,
                 MerchantMask = _merchantLayerMask,
-                RaycastYOffset = new float3(0, 0.5f, 0)
+                RaycastYOffset = raycastYOffset
             };
 
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                foreach (
+                    var (cannonConstraints, localTransform, faction) 
+                         in SystemAPI.Query<RefRW<CannonConstraints>, RefRO<LocalTransform>, RefRO<Faction>>())
+                {
+                    float3 start = localTransform.ValueRO.Position + raycastYOffset;
+                    float3 right = localTransform.ValueRO.Right();
+                    float3 left = -right;
+                    float range = cannonConstraints.ValueRO.ShootingRange;
+
+                    uint targetMask = faction.ValueRO.Value == FactionType.Pirate ? _merchantLayerMask : _pirateLayerMask;
+                    float tolerance = range * 0.8f;
+
+                    var filter = new CollisionFilter
+                    {
+                        BelongsTo = ~0u,
+                        CollidesWith = targetMask,
+                        GroupIndex = 0
+                    };
+
+                    bool foundTarget = false;
+
+                    // right ray
+                    var rightRay = new RaycastInput
+                    {
+                        Start = start,
+                        End = start + right * range,
+                        Filter = filter
+                    };
+
+                    if (physicsWorld.CollisionWorld.CastRay(rightRay, out RaycastHit hitRight))
+                    {
+    #if UNITY_EDITOR
+                        // Debug.DrawLine(start, hitRight.Position, Color.green);
+    #endif
+                        float hitDistance = math.distance(hitRight.Position, start);
+                        if (hitDistance >= tolerance)
+                        {
+                            cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Right;
+                            foundTarget = true;
+                        }
+                    }
+    #if UNITY_EDITOR
+                    // else
+                    // {
+                    //     Debug.DrawLine(start, start + right * range, Color.red);
+                    // }
+    #endif
+
+                    if (foundTarget)
+                        return;
+
+                    // left ray
+                    var leftRay = new RaycastInput
+                    {
+                        Start = start,
+                        End = start + left * range,
+                        Filter = filter
+                    };
+
+                    if (physicsWorld.CollisionWorld.CastRay(leftRay, out RaycastHit hitLeft))
+                    {
+    #if UNITY_EDITOR
+                        // Debug.DrawLine(start, hitLeft.Position, Color.green);
+    #endif
+                        float hitDistance = math.distance(hitLeft.Position, start);
+                        if (hitDistance >= tolerance)
+                        {
+                            cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.Left;
+                            foundTarget = true;
+                        }
+                    }
+    #if UNITY_EDITOR
+                    // else
+                    // {
+                    //     Debug.DrawLine(start, start + left * range, Color.red);
+                    // }
+    #endif
+
+                    if (!foundTarget)
+                    {
+                        cannonConstraints.ValueRW.ShootingDirection = ShootingDirection.None;
+                    }
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -56,7 +139,7 @@ namespace Systems.Cannon
             }
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         private partial struct CannonTargetingJob : IJobEntity
         {
             [ReadOnly] public CollisionWorld CollisionWorld;
@@ -64,10 +147,10 @@ namespace Systems.Cannon
             [ReadOnly] public uint MerchantMask;
             public float3 RaycastYOffset;
 
-            void Execute(ref CannonConstraints cannonConstraints, in LocalToWorld localToWorld, in Faction faction)
+            void Execute(ref CannonConstraints cannonConstraints, in LocalTransform localTransform, in Faction faction)
             {
-                float3 start = localToWorld.Position + RaycastYOffset;
-                float3 right = localToWorld.Right;
+                float3 start = localTransform.Position + RaycastYOffset;
+                float3 right = localTransform.Right();
                 float3 left = -right;
                 float range = cannonConstraints.ShootingRange;
 
@@ -94,7 +177,7 @@ namespace Systems.Cannon
                 if (CollisionWorld.CastRay(rightRay, out RaycastHit hitRight))
                 {
 #if UNITY_EDITOR
-                    //Debug.DrawLine(start, hitRight.Position, Color.green);
+                    // Debug.DrawLine(start, hitRight.Position, Color.green);
 #endif
                     float hitDistance = math.distance(hitRight.Position, start);
                     if (hitDistance >= tolerance)
@@ -124,7 +207,7 @@ namespace Systems.Cannon
                 if (CollisionWorld.CastRay(leftRay, out RaycastHit hitLeft))
                 {
 #if UNITY_EDITOR
-                    //Debug.DrawLine(start, hitLeft.Position, Color.green);
+                    // Debug.DrawLine(start, hitLeft.Position, Color.green);
 #endif
                     float hitDistance = math.distance(hitLeft.Position, start);
                     if (hitDistance >= tolerance)

@@ -3,14 +3,14 @@ using Components.Enum;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics.Systems;
 using Unity.Transforms;
 
 namespace Systems
 {
-    [BurstCompile]
+    //[BurstCompile]
     [UpdateBefore(typeof(TurnSystem))]
-    [UpdateBefore(typeof(MoveSystem))] 
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateBefore(typeof(MoveSystem))]
     public partial struct SinkingSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -19,24 +19,52 @@ namespace Systems
             state.RequireForUpdate<JobModeSingleton>();
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             float deltaTime = SystemAPI.Time.DeltaTime;
 
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+            var ecbParallel = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
             var job = new SinkingJob
             {
                 DeltaTime = deltaTime,
-                ECB = ecb
+                ECB = ecbParallel
             };
 
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+                foreach (var (navigation, localTransform, sinking, entity) in SystemAPI.Query<RefRW<Navigation>, RefRW<LocalTransform>, RefRO<Sinking>>().WithEntityAccess())
+                {
+                    navigation.ValueRW.DesiredDirection = localTransform.ValueRO.Forward();
+                    navigation.ValueRW.DesiredMoveSpeed = 0f;
+
+                    float3 up = localTransform.ValueRO.Up();
+                    float upDot = math.dot(up, math.up());
+
+                    if (upDot > 0f)
+                    {
+                        float3 tiltAxis = math.normalize(sinking.ValueRO.TiltAxis);
+                        float tiltAngle = sinking.ValueRO.TiltSpeed * deltaTime;
+                        quaternion tiltRotation = quaternion.AxisAngle(tiltAxis, math.radians(tiltAngle));
+
+                        localTransform.ValueRW.Rotation = math.normalize(
+                            math.mul(localTransform.ValueRO.Rotation, tiltRotation));
+                    }
+
+                    float3 pos = localTransform.ValueRO.Position;
+                    pos.y -= sinking.ValueRO.SinkSpeed * deltaTime;
+                    localTransform.ValueRW.Position = pos;
+
+                    ecb.AddComponent(entity, new DespawnBelowYLevel
+                    {
+                        YLevel = -10f
+                    });
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -48,7 +76,7 @@ namespace Systems
             }
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         private partial struct SinkingJob : IJobEntity
         {
             public float DeltaTime;
@@ -81,7 +109,6 @@ namespace Systems
                 pos.y -= sinking.SinkSpeed * DeltaTime;
                 transform.Position = pos;
 
-                // TODO: fjern hvis vi vil lave object pooling i stedet for. Det her er bare for at flocking systemet stadig virker.
                 ECB.AddComponent(sortKey, entity, new DespawnBelowYLevel
                 {
                     YLevel = -10f

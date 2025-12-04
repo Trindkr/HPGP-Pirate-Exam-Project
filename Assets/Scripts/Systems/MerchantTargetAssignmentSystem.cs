@@ -16,13 +16,13 @@ namespace Systems
     {
         private const int OffsetMultiplier = 100;
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<JobModeSingleton>();
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var merchants =
@@ -69,7 +69,7 @@ namespace Systems
             merchants.Dispose();
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         private partial struct TargetAssigningJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;
@@ -106,7 +106,7 @@ namespace Systems
             }
         }
 
-        [BurstCompile]
+        //[BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
         }

@@ -45,7 +45,7 @@ namespace Systems.Fleet
         }
    }
 
-    [BurstCompile]
+    //[BurstCompile]
     [WithNone(typeof(Sinking))]
     //TODO: m�ske skal sinking skibe ogs� fjernes fra flocking, s� skibe ikke flocker med sunkne skibe?
     // PT. flocker de levende skibe stadig med de sunkne skibe, selvom sunkne skibe ikke flocker (har ingen desired speed/direction)

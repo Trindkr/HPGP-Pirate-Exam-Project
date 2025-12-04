@@ -1,56 +1,57 @@
 using Components;
 using Components.Enum;
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
-[BurstCompile]
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-public partial struct DespawnBelowYSystem : ISystem
+namespace Systems
 {
-    public void OnCreate(ref SystemState state)
+    //[BurstCompile]
+    public partial struct DespawnBelowYSystem : ISystem
     {
-        state.RequireForUpdate<JobModeSingleton>();
-        state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
-    }
-
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
-    {
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-
-        var job = new DespawnJob
+        public void OnCreate(ref SystemState state)
         {
-            EntityCommandBuffer = ecb
-        };
-
-        var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
-        if (jobModeSingleton.JobMode == JobMode.Run)
-        {
-            job.Run();
+            state.RequireForUpdate<JobModeSingleton>();
+            state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
-        else if (jobModeSingleton.JobMode == JobMode.Schedule)
-        {
-            state.Dependency = job.Schedule(state.Dependency);
-        }
-        else
-        {
-            state.Dependency = job.ScheduleParallel(state.Dependency);
-        }
-    }
 
-    [BurstCompile]
-    public partial struct DespawnJob : IJobEntity
-    {
-        public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;
-
-        void Execute(Entity entity, ref DespawnBelowYLevel despawnBelowYLevel, ref LocalTransform localTransform)
+        //[BurstCompile]
+        public void OnUpdate(ref SystemState state)
         {
-            if (localTransform.Position.y < despawnBelowYLevel.YLevel)
+            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+
+            var job = new DespawnJob
             {
-                EntityCommandBuffer.DestroyEntity(entity.Index, entity);
+                EntityCommandBuffer = ecb
+            };
+
+            var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
+            if (jobModeSingleton.JobMode == JobMode.Run)
+            {
+                job.Run();
+            }
+            else if (jobModeSingleton.JobMode == JobMode.Schedule)
+            {
+                state.Dependency = job.Schedule(state.Dependency);
+            }
+            else
+            {
+                state.Dependency = job.ScheduleParallel(state.Dependency);
+            }
+        }
+
+        //[BurstCompile]
+        public partial struct DespawnJob : IJobEntity
+        {
+            public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;
+
+            void Execute(Entity entity, ref DespawnBelowYLevel despawnBelowYLevel, ref LocalTransform localTransform)
+            {
+                if (localTransform.Position.y < despawnBelowYLevel.YLevel)
+                {
+                    EntityCommandBuffer.DestroyEntity(entity.Index, entity);
+                }
             }
         }
     }
