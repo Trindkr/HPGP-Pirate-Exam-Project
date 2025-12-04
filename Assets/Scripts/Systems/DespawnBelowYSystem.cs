@@ -19,17 +19,25 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+            var ecbParallel = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
             var job = new DespawnJob
             {
-                EntityCommandBuffer = ecb
+                EntityCommandBuffer = ecbParallel
             };
 
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+                
+                foreach (var (despawnBelowYLevel, localTransform, entity)  in SystemAPI.Query<RefRW<DespawnBelowYLevel>, RefRO<LocalTransform>>().WithEntityAccess())
+                {
+                    if (localTransform.ValueRO.Position.y < despawnBelowYLevel.ValueRO.YLevel)
+                    {
+                        ecb.DestroyEntity(entity);
+                    }
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -46,7 +54,7 @@ namespace Systems
         {
             public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;
 
-            void Execute(Entity entity, ref DespawnBelowYLevel despawnBelowYLevel, ref LocalTransform localTransform)
+            void Execute(Entity entity, in DespawnBelowYLevel despawnBelowYLevel, in LocalTransform localTransform)
             {
                 if (localTransform.Position.y < despawnBelowYLevel.YLevel)
                 {
