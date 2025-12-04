@@ -10,7 +10,7 @@ using Unity.Transforms;
 
 namespace Systems.Fleet
 {
-    [BurstCompile, UpdateBefore(typeof(TurnSystem))]
+    [BurstCompile]
     public partial struct FleetFlockingSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -21,18 +21,46 @@ namespace Systems.Fleet
 
         public void OnUpdate(ref SystemState state)
         {
+            var fleetShipBufferLookup = SystemAPI.GetBufferLookup<FleetShipBuffer>(true);
+            var localTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
+            
             var flockingConfiguration = SystemAPI.GetSingleton<FlockingConfigurationSingleton>().FlockingConfiguration;
             FleetFlockingJob job = new FleetFlockingJob
             {
-                FleetShipBufferLookup = SystemAPI.GetBufferLookup<FleetShipBuffer>(true),
-                LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
+                FleetShipBufferLookup = fleetShipBufferLookup,
+                LocalTransformLookup = localTransformLookup,
                 FlockingConfiguration = flockingConfiguration,
             };
             
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                foreach (var (navigation, fleetMember, entity) in SystemAPI
+                             .Query<RefRW<Navigation>, RefRO<FleetMember>>().WithEntityAccess())
+                {
+                    if (!fleetShipBufferLookup.HasBuffer(fleetMember.ValueRO.FleetEntity))
+                        return;
+
+                    var fleetBuffer = fleetShipBufferLookup[fleetMember.ValueRO.FleetEntity];
+                    var ships = fleetBuffer.AsNativeArray();
+
+                    // Collect transforms of all ships in this fleet
+                    var fleetTransforms = new NativeArray<LocalTransform>(ships.Length, Allocator.Temp);
+                    for (int i = 0; i < ships.Length; i++)
+                    {
+                        var shipEntity = ships[i].ShipEntity;
+                        if (localTransformLookup.HasComponent(shipEntity))
+                            fleetTransforms[i] = localTransformLookup[shipEntity];
+                    }
+
+                    Flocker.Flock(
+                        ref navigation.ValueRW, 
+                        localTransformLookup[entity], 
+                        fleetTransforms, 
+                        flockingConfiguration);
+
+                    fleetTransforms.Dispose();
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
@@ -56,7 +84,7 @@ namespace Systems.Fleet
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
         public FlockingConfiguration FlockingConfiguration;
         
-        private void Execute(Entity entity, ref Navigation navigation, FleetMember fleetMember)
+        private void Execute(Entity entity, ref Navigation navigation, in FleetMember fleetMember)
         {
             if (!FleetShipBufferLookup.HasBuffer(fleetMember.FleetEntity))
                 return;
