@@ -9,18 +9,18 @@ using UnityEngine;
 
 namespace Systems.Cannon
 {
-    //[BurstCompile]
+    [BurstCompile]
     [UpdateAfter(typeof(CannonTargetingSystem))]
     public partial struct CannonFiringSystem : ISystem
     {
-        //[BurstCompile]
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<JobModeSingleton>();
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
@@ -100,7 +100,7 @@ namespace Systems.Cannon
             
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public partial struct CannonFireJob : IJobEntity
         {
             public float DeltaTime;

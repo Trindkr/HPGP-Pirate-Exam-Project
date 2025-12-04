@@ -13,7 +13,7 @@ using Unity.Collections;
 
 namespace Systems.Cannon
 {
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct CannonTargetingSystem : ISystem
     {
         private uint _pirateLayerMask;
@@ -28,7 +28,7 @@ namespace Systems.Cannon
             _merchantLayerMask = 1u << LayerMask.NameToLayer("Merchant");
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var raycastYOffset = new float3(0, 0.5f, 0);
@@ -142,7 +142,7 @@ namespace Systems.Cannon
             }
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         private partial struct CannonTargetingJob : IJobEntity
         {
             [ReadOnly] public CollisionWorld CollisionWorld;

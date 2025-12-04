@@ -7,19 +7,19 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 
 namespace Systems
 {
-    // [BurstCompile]
+    [BurstCompile]
     [UpdateBefore(typeof(TurnSystem)), UpdateAfter(typeof(FleetFlockingSystem))]
     public partial struct ObstacleSeparationSystem : ISystem
     {
         private EntityQuery _query;
 
-        // [BurstCompile]
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<ObstacleAvoidanceModeSingleton>();
             state.RequireForUpdate<JobModeSingleton>();
             _query =
                 SystemAPI.QueryBuilder()
@@ -28,9 +28,12 @@ namespace Systems
                     .WithAll<LocalTransform>().Build();
         }
 
-        // [BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var obstacleAvoidanceModeSingleton = SystemAPI.GetSingleton<ObstacleAvoidanceModeSingleton>();
+            if (obstacleAvoidanceModeSingleton.ObstacleAvoidanceMode != ObstacleAvoidanceMode.SeparationVector)
+                return;
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
             var ships = _query.ToEntityArray(Allocator.TempJob);
          
@@ -91,7 +94,7 @@ namespace Systems
         }
     }
     
-    // [BurstCompile]
+    [BurstCompile]
     [WithAll(typeof(Ship))]
     [WithNone(typeof(Sinking))]
     public partial struct ObstacleSeparationJob : IJobEntity

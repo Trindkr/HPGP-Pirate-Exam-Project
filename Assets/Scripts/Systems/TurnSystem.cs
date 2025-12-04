@@ -52,7 +52,7 @@ namespace Systems
         }
     }
     
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct TurnJob : IJobEntity
     {
         public float DeltaTime;
@@ -77,7 +77,7 @@ namespace Systems
             return angularMotion;
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetAcceleration(in LocalTransform transform, in AngularMotion motion, in Navigation navigation)
         {

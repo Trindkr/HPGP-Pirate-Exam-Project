@@ -18,6 +18,7 @@ namespace ScriptableObjects
         [SerializeField] private ShipAmountOptions _shipAmountOptions;
         public int ShipAmount => (int) _shipAmountOptions;
         public JobMode JobMode;
+        public ObstacleAvoidanceMode ObstacleAvoidanceMode;
         [Range(1, 100)]
         public int FleetSize = 15;
         public SailingConstraints  SailingConstraints;

@@ -6,7 +6,7 @@ using Unity.Transforms;
 
 namespace Systems
 {
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct DespawnBelowYSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -15,7 +15,7 @@ namespace Systems
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
@@ -50,7 +50,7 @@ namespace Systems
             }
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public partial struct DespawnJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter EntityCommandBuffer;

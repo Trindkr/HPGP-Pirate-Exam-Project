@@ -53,7 +53,7 @@ namespace Systems
         }
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct TradeRouteJob : IJobEntity
     {
         [ReadOnly] public DynamicBuffer<IslandPositionBuffer> IslandPositions;

@@ -13,10 +13,10 @@ namespace Systems.Cannon
 {
     [UpdateInGroup(typeof(PhysicsSystemGroup))]
     [UpdateAfter(typeof(PhysicsSimulationGroup))]
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct CannonballCollisionSystem : ISystem
     {
-        //[BurstCompile]
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<JobModeSingleton>();
@@ -24,7 +24,7 @@ namespace Systems.Cannon
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
@@ -91,7 +91,7 @@ namespace Systems.Cannon
             ecb.DestroyEntity(cannonball);
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         private struct CannonballCollisionJob : ICollisionEventsJob
         {
             [ReadOnly] public ComponentLookup<CannonballTag> CannonballLookup;

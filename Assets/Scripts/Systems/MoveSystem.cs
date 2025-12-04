@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 namespace Systems
 {
-    //[BurstCompile]
+    [BurstCompile]
     [UpdateAfter(typeof(TurnSystem))]
     public partial struct MoveSystem : ISystem
     {
@@ -54,7 +54,7 @@ namespace Systems
         }
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct MoveJob : IJobEntity
     {
         public float DeltaTime;

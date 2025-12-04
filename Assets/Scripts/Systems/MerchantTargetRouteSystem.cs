@@ -13,13 +13,13 @@ namespace Systems
     [UpdateAfter(typeof(MerchantTargetAssignmentSystem))]
     public partial struct MerchantTargetRouteSystem : ISystem
     {
-        //[BurstCompile]
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<JobModeSingleton>();
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
@@ -59,7 +59,7 @@ namespace Systems
 
         }
         
-        //[BurstCompile]
+        [BurstCompile]
         public partial struct MerchantTargetJob : IJobEntity
         {
             [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
@@ -81,7 +81,7 @@ namespace Systems
 
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
 

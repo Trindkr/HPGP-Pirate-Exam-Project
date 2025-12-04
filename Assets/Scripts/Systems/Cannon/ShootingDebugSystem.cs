@@ -7,7 +7,7 @@
 //
 // namespace Systems.Cannon
 // {
-//     //[BurstCompile]
+//     [BurstCompile]
 //     [UpdateAfter(typeof(CannonTargetingSystem))]
 //     public partial struct ShootingDebugSystem : ISystem
 //     {

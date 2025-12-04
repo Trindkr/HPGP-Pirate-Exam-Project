@@ -8,7 +8,7 @@ using Unity.Transforms;
 
 namespace Systems
 {
-    //[BurstCompile]
+    [BurstCompile]
     public partial struct SinkingSystem : ISystem
     {
         public void OnCreate(ref SystemState state)
@@ -17,7 +17,7 @@ namespace Systems
             state.RequireForUpdate<JobModeSingleton>();
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             float deltaTime = SystemAPI.Time.DeltaTime;
@@ -75,7 +75,7 @@ namespace Systems
             }
         }
 
-        //[BurstCompile]
+        [BurstCompile]
         private partial struct SinkingJob : IJobEntity
         {
             public float DeltaTime;

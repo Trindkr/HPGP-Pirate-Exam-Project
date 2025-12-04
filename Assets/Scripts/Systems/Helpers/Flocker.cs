@@ -9,7 +9,7 @@ using Unity.Transforms;
 
 namespace Systems.Helpers
 {
-    //[BurstCompile]
+    [BurstCompile]
     public static class Flocker
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
