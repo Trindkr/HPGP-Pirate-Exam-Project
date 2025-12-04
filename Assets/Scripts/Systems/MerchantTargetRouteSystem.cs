@@ -31,7 +31,22 @@ namespace Systems
             var jobModeSingleton = SystemAPI.GetSingleton<JobModeSingleton>();
             if (jobModeSingleton.JobMode == JobMode.Run)
             {
-                job.Run();
+                foreach (var (localTransform, merchantSeeker, navigation) in SystemAPI
+                             .Query<RefRO<LocalTransform>, RefRO<MerchantSeeker>, RefRW<Navigation>>())
+                {
+                    if (!transformLookup.HasComponent(merchantSeeker.ValueRO.Target))
+                    {
+                        //Debug.DrawRay(localTransform.Position, new float3(0, 50, 0), Color.red);
+                        return;
+                    }
+
+                    var merchantTargetPosition = transformLookup[merchantSeeker.ValueRO.Target].Position;
+
+                    var targetDirection = merchantTargetPosition - localTransform.ValueRO.Position;
+                    navigation.ValueRW.DesiredDirection += math.normalize(targetDirection) * 10f;
+                
+                    //Debug.DrawLine(localTransform.Position, merchantTargetPosition, Color.green);
+                }
             }
             else if (jobModeSingleton.JobMode == JobMode.Schedule)
             {
